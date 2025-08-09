@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+const { Client } = require('pg');
 
 exports.handler = async (event, context) => {
   const headers = {
@@ -11,77 +11,86 @@ exports.handler = async (event, context) => {
     return { statusCode: 200, headers };
   }
 
+  const client = new Client({
+    connectionString: process.env.NETLIFY_DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+
   try {
     const { emails } = JSON.parse(event.body || '{}');
-    const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY;
-    let JSONBIN_ID = process.env.JSONBIN_ID;
-
-    if (!JSONBIN_API_KEY) {
+    
+    if (!Array.isArray(emails)) {
       return {
-        statusCode: 500,
+        statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'JSONBin API key not configured' })
+        body: JSON.stringify({ error: 'Invalid emails data' })
       };
     }
 
-    // If no JSONBIN_ID, create new bin
-    if (!JSONBIN_ID) {
-      const createResponse = await fetch('https://api.jsonbin.io/v3/b', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': JSONBIN_API_KEY,
-          'X-Bin-Name': 'TempEmailManager',
-          'X-Bin-Private': 'false'
-        },
-        body: JSON.stringify(emails || [])
-      });
+    await client.connect();
 
-      if (createResponse.ok) {
-        const newBin = await createResponse.json();
-        JSONBIN_ID = newBin.metadata.id;
-        console.log('Created new JSONBin:', JSONBIN_ID);
-        
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({ 
-            success: true, 
-            message: 'New bin created and emails saved',
-            binId: JSONBIN_ID 
-          })
-        };
-      } else {
-        throw new Error('Failed to create JSONBin');
-      }
+    // Create table if it doesn't exist
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS emails (
+        id BIGINT PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        verification_code VARCHAR(10),
+        status VARCHAR(50) DEFAULT 'waiting',
+        used BOOLEAN DEFAULT FALSE,
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_checked TIMESTAMP
+      )
+    `);
+
+    // Clear existing data and insert new data
+    await client.query('DELETE FROM emails');
+
+    // Insert all emails
+    for (const email of emails) {
+      await client.query(`
+        INSERT INTO emails (id, email, password, verification_code, status, used, created, last_checked)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (id) DO UPDATE SET
+          email = EXCLUDED.email,
+          password = EXCLUDED.password,
+          verification_code = EXCLUDED.verification_code,
+          status = EXCLUDED.status,
+          used = EXCLUDED.used,
+          last_checked = EXCLUDED.last_checked
+      `, [
+        email.id,
+        email.email,
+        email.password,
+        email.verificationCode || null,
+        email.status || 'waiting',
+        email.used || false,
+        email.created ? new Date(email.created) : new Date(),
+        email.lastChecked ? new Date(email.lastChecked) : null
+      ]);
     }
 
-    // Update existing bin
-    const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_API_KEY
-      },
-      body: JSON.stringify(emails || [])
-    });
-
-    if (response.ok) {
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ success: true, message: 'Emails saved successfully' })
-      };
-    } else {
-      throw new Error(`JSONBin responded with ${response.status}`);
-    }
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ 
+        success: true, 
+        message: 'Emails saved successfully',
+        count: emails.length 
+      })
+    };
 
   } catch (error) {
-    console.error('Error saving emails:', error);
+    console.error('Database error:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Failed to save emails' })
+      body: JSON.stringify({ 
+        error: 'Failed to save emails',
+        message: error.message 
+      })
     };
+  } finally {
+    await client.end();
   }
 };
