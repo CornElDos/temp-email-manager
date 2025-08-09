@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temp Email Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .login-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .main-container {
+            display: none;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #333;
+            margin: 0;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e1e1;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            min-height: 600px;
+        }
+
+        .left-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .create-email-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .create-email-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(76, 175, 80, 0.3);
+        }
+
+        .create-email-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .right-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        .email-item {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .email-item.used {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .email-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .email-address {
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .email-password {
+            color: #666;
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .verification-code {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .email-status {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .delete-btn, .use-btn {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+            float: right;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .use-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .use-btn:hover {
+            background: #218838;
+        }
+
+        .use-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-active { background: #28a745; }
+        .status-waiting { background: #ffc107; }
+        .status-verified { background: #17a2b8; }
+        .status-used { background: #6f42c1; }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .header-controls {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <h2>🔐 Temp Email Manager</h2>
+            <input type="text" id="username" placeholder="Användarnamn" />
+            <input type="password" id="password" placeholder="Lösenord" />
+            <button onclick="login()">Logga in</button>
+            <div id="loginError" style="color: red; text-align: center; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainContainer" class="main-container">
+        <div class="header">
+            <div>
+                <h1>📧 Temp Email Manager</h1>
+                <p style="font-size: 12px; color: #666; margin: 5px 0;">
+                    <span style="color: #28a745;">✅ Netlify-powered - Äkta API-integration!</span>
+                </p>
+            </div>
+            <div class="header-controls">
+                <button class="btn btn-secondary" onclick="exportData()">📤 Exportera</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📥 Importera</button>
+                <button class="btn btn-secondary" onclick="logout()">🚪 Logga ut</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="left-panel">
+                <button class="create-email-btn" onclick="createEmail()" id="createBtn">
+                    ✉️ Skapa Email
+                </button>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>API-status: <span class="status-indicator status-active"></span> LIVE</h3>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                        Riktiga API:er via Netlify Functions
+                    </p>
+                </div>
+
+                <div>
+                    <h3>📊 Statistik</h3>
+                    <p>Skapade emails: <span id="totalEmails">0</span></p>
+                    <p>Verifierade: <span id="verifiedEmails">0</span></p>
+                    <p>Väntar på mail: <span id="waitingEmails">0</span></p>
+                    <p>Använda: <span id="usedEmails">0</span></p>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #d1ecf1; border-radius: 10px; border-left: 4px solid #0ea5e9;">
+                    <h4>🚀 Netlify Functions</h4>
+                    <p style="font-size: 12px; margin: 5px 0;">
+                        Server-side API-anrop löser alla CORS-problem. Delad databas via JSONBin.io!
+                    </p>
+                    <p style="font-size: 11px; color: #666; margin: 5px 0;">
+                        Kollar riktiga mail-API:er var 30:e sekund
+                    </p>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <h2>📬 Skapade Emails</h2>
+                <div id="statusMessage"></div>
+                <div id="emailList">
+                    <p style="text-align: center; color: #999; padding: 50px;">
+                        Inga emails skapade än. Klicka på "Skapa Email" för att börja!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let emails = [];
+        let refreshInterval;
+        let isLoggedIn = false;
+
+        // Login credentials
+        const VALID_USERNAME = 'banan';
+        const VALID_PASSWORD = 'kycen';
+
+        // Check login on page load
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            showMainApp();
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                localStorage.setItem('isLoggedIn', 'true');
+                showMainApp();
+                errorDiv.textContent = '';
+            } else {
+                errorDiv.textContent = 'Fel användarnamn eller lösenord!';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            clearInterval(refreshInterval);
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function showMainApp() {
+            isLoggedIn = true;
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+            loadEmails();
+            startAutoRefresh();
+        }
+
+        // Generate secure password
+        function generateSecurePassword(length = 12) {
+            const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+            const array = new Uint8Array(length);
+            window.crypto.getRandomValues(array);
+            return Array.from(array, byte => charset[byte % charset.length]).join('');
+        }
+
+        // Generate random email address
+        function generateRandomEmail() {
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 8; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result + '@maildrop.cc';
+        }
+
+        // Show status message
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerHTML = `<div class="${type === 'error' ? 'error-message' : 'success-message'}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        // API call to Netlify Functions
+        async function callNetlifyFunction(functionName, data = {}) {
+            try {
+                const response = await fetch(`/.netlify/functions/${functionName}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error(`Error calling ${functionName}:`, error);
+                throw error;
+            }
+        }
+
+        // Load emails from database
+        async function loadEmails() {
+            try {
+                const result = await callNetlifyFunction('get-emails');
+                emails = result.emails || [];
+                displayEmails();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading emails:', error);
+                showStatus('Fel vid laddning av emails. Använder lokal backup.', 'error');
+                // Fallback to localStorage
+                emails = JSON.parse(localStorage.getItem('tempEmails') || '[]');
+                displayEmails();
+                updateStats();
+            }
+        }
+
+        // Save emails to database
+        async function saveEmails() {
+            try {
+                await callNetlifyFunction('save-emails', { emails });
+                // Also save locally as backup
+                localStorage.setItem('tempEmails', JSON.stringify(emails));
+            } catch (error) {
+                console.error('Error saving emails:', error);
+                showStatus('Fel vid sparning. Data sparad lokalt.', 'error');
+                // Save locally as fallback
+                localStorage.setItem('tempEmails', JSON.stringify(emails));
+            }
+        }
+
+        // Create new email
+        async function createEmail() {
+            const createBtn = document.getElementById('createBtn');
+            createBtn.disabled = true;
+            createBtn.textContent = '⏳ Skapar...';
+
+            try {
+                const email = generateRandomEmail();
+                const password = generateSecurePassword();
+                const timestamp = new Date().toLocaleString('sv-SE');
+
+                const emailObj = {
+                    id: Date.now(),
+                    email: email,
+                    password: password,
+                    verificationCode: null,
+                    status: 'waiting',
+                    used: false,
+                    created: timestamp,
+                    lastChecked: null
+                };
+
+                emails.unshift(emailObj);
+                await saveEmails();
+                displayEmails();
+                updateStats();
+
+                showStatus(`Email skapad: ${email}`, 'success');
+
+                // Start checking for verification mail
+                setTimeout(() => checkMails(emailObj), 5000);
+
+            } catch (error) {
+                console.error('Error creating email:', error);
+                showStatus('Fel vid skapande av email', 'error');
+            } finally {
+                createBtn.disabled = false;
+                createBtn.textContent = '✉️ Skapa Email';
+            }
+        }
+
+        // Check mails for specific email
+        async function checkMails(emailObj) {
+            if (emailObj.used || emailObj.status === 'verified') {
+                return; // Skip if already used or verified
+            }
+
+            try {
+                const result = await callNetlifyFunction('check-mails', { 
+                    email: emailObj.email 
+                });
+
+                if (result.verificationCode) {
+                    emailObj.verificationCode = result.verificationCode;
+                    emailObj.status = 'verified';
+                    emailObj.lastChecked = new Date().toLocaleString('sv-SE');
+                    
+                    await saveEmails();
+                    displayEmails();
+                    updateStats();
+
+                    showStatus(`Verifieringskod mottagen för ${emailObj.email}: ${result.verificationCode}`, 'success');
+                } else {
+                    emailObj.lastChecked = new Date().toLocaleString('sv-SE');
+                    await saveEmails();
+                }
+            } catch (error) {
+                console.error('Error checking mails:', error);
+            }
+        }
+
+        // Mark email as used
+        async function markAsUsed(id) {
+            const email = emails.find(e => e.id === id);
+            if (email && !email.used) {
+                email.used = true;
+                await saveEmails();
+                displayEmails();
+                updateStats();
+                showStatus(`Email markerad som använd: ${email.email}`, 'success');
+            }
+        }
+
+        // Delete email
+        async function deleteEmail(id) {
+            if (confirm('Är du säker på att du vill ta bort denna email?')) {
+                const email = emails.find(e => e.id === id);
+                emails = emails.filter(email => email.id !== id);
+                await saveEmails();
+                displayEmails();
+                updateStats();
+                showStatus(`Email borttagen: ${email?.email}`, 'success');
+            }
+        }
+
+        // Display emails
+        function displayEmails() {
+            const emailList = document.getElementById('emailList');
+            
+            if (emails.length === 0) {
+                emailList.innerHTML = `
+                    <p style="text-align: center; color: #999; padding: 50px;">
+                        Inga emails skapade än. Klicka på "Skapa Email" för att börja!
+                    </p>
+                `;
+                return;
+            }
+
+            emailList.innerHTML = emails.map(email => `
+                <div class="email-item ${email.used ? 'used' : ''}">
+                    <button class="delete-btn" onclick="deleteEmail(${email.id})">&times;</button>
+                    <button class="use-btn" onclick="markAsUsed(${email.id})" 
+                            ${email.used ? 'disabled' : ''}>
+                        ${email.used ? '✓ Använd' : 'Använd'}
+                    </button>
+                    <div class="email-address">
+                        <span class="status-indicator status-${email.used ? 'used' : email.status}"></span>
+                        ${email.email} ${email.used ? '<strong style="color: #6f42c1;">(ANVÄND)</strong>' : ''}
+                    </div>
+                    <div class="email-password">
+                        <strong>Lösenord:</strong> ${email.password}
+                    </div>
+                    ${email.verificationCode ? 
+                        `<div class="verification-code">Verifieringskod: ${email.verificationCode}</div>` : 
+                        ''
+                    }
+                    <div class="email-status">
+                        Status: ${email.used ? 'Använd' : getStatusText(email.status)} 
+                        ${email.status === 'waiting' && !email.used ? '<span class="loading"></span>' : ''}
+                    </div>
+                    <div class="timestamp">
+                        Skapad: ${email.created}
+                        ${email.lastChecked ? `<br>Senast kollad: ${email.lastChecked}` : ''}
+                        ${email.used ? `<br><strong style="color: #6f42c1;">Markerad som använd</strong>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'waiting': return 'Väntar på mail';
+                case 'verified': return 'Verifierad';
+                case 'active': return 'Aktiv';
+                default: return 'Okänd';
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalEmails').textContent = emails.length;
+            document.getElementById('verifiedEmails').textContent = 
+                emails.filter(e => e.status === 'verified').length;
+            document.getElementById('waitingEmails').textContent = 
+                emails.filter(e => e.status === 'waiting' && !e.used).length;
+            document.getElementById('usedEmails').textContent = 
+                emails.filter(e => e.used).length;
+        }
+
+        // Auto-refresh functionality
+        function startAutoRefresh() {
+            // Load emails every 30 seconds to sync with other users
+            refreshInterval = setInterval(async () => {
+                await loadEmails();
+                
+                // Check mails for waiting emails
+                const waitingEmails = emails.filter(email => 
+                    email.status === 'waiting' && !email.used
+                );
+                
+                for (const email of waitingEmails) {
+                    // Don't check too frequently for the same email
+                    const lastChecked = email.lastChecked ? new Date(email.lastChecked) : null;
+                    const now = new Date();
+                    const timeSinceLastCheck = lastChecked ? (now - lastChecked) / 1000 : Infinity;
+                    
+                    if (timeSinceLastCheck > 60) { // Check at most once per minute
+                        await checkMails(email);
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Rate limiting
+                    }
+                }
+            }, 30000);
+        }
+
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify(emails, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `temp-emails-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Import data
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const importedEmails = JSON.parse(e.target.result);
+                    if (Array.isArray(importedEmails)) {
+                        emails = importedEmails;
+                        await saveEmails();
+                        displayEmails();
+                        updateStats();
+                        showStatus('Data importerad framgångsrikt!', 'success');
+                    } else {
+                        showStatus('Ogiltig fil format!', 'error');
+                    }
+                } catch (error) {
+                    showStatus('Fel vid import: ' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Enter key support for login
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !isLoggedIn) {
+                login();
+            }
+        });
+
+        // Initialize on page load
+        updateStats();
+        console.log('Temp Email Manager - Netlify Functions version laddad!');
+    </script>
+</body>
+</html>
