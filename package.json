@@ -7,10 +7,12 @@
     "build": "echo 'No build step required'",
     "dev": "netlify dev"
   },
+{
   "dependencies": {
     "node-fetch": "^2.6.7",
-    "pg": "^8.11.0"
-  },
+    "@netlify/neon": "^0.9.0"
+  }
+},
   "devDependencies": {
     "netlify-cli": "^17.0.0"
   },
