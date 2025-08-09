@@ -1,6 +1,6 @@
-const { Client } = require('pg');
+import { neon } from '@netlify/neon';
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -10,11 +10,6 @@ exports.handler = async (event, context) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers };
   }
-
-  const client = new Client({
-    connectionString: process.env.NETLIFY_DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
 
   try {
     const { emails } = JSON.parse(event.body || '{}');
@@ -27,10 +22,10 @@ exports.handler = async (event, context) => {
       };
     }
 
-    await client.connect();
+    const sql = neon(); // automatically uses NETLIFY_DATABASE_URL
 
     // Create table if it doesn't exist
-    await client.query(`
+    await sql`
       CREATE TABLE IF NOT EXISTS emails (
         id BIGINT PRIMARY KEY,
         email VARCHAR(255) NOT NULL,
@@ -41,33 +36,26 @@ exports.handler = async (event, context) => {
         created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         last_checked TIMESTAMP
       )
-    `);
+    `;
 
-    // Clear existing data and insert new data
-    await client.query('DELETE FROM emails');
+    // Clear existing data
+    await sql`DELETE FROM emails`;
 
     // Insert all emails
     for (const email of emails) {
-      await client.query(`
+      await sql`
         INSERT INTO emails (id, email, password, verification_code, status, used, created, last_checked)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        ON CONFLICT (id) DO UPDATE SET
-          email = EXCLUDED.email,
-          password = EXCLUDED.password,
-          verification_code = EXCLUDED.verification_code,
-          status = EXCLUDED.status,
-          used = EXCLUDED.used,
-          last_checked = EXCLUDED.last_checked
-      `, [
-        email.id,
-        email.email,
-        email.password,
-        email.verificationCode || null,
-        email.status || 'waiting',
-        email.used || false,
-        email.created ? new Date(email.created) : new Date(),
-        email.lastChecked ? new Date(email.lastChecked) : null
-      ]);
+        VALUES (
+          ${email.id},
+          ${email.email},
+          ${email.password},
+          ${email.verificationCode || null},
+          ${email.status || 'waiting'},
+          ${email.used || false},
+          ${email.created ? new Date(email.created) : new Date()},
+          ${email.lastChecked ? new Date(email.lastChecked) : null}
+        )
+      `;
     }
 
     return {
@@ -90,7 +78,5 @@ exports.handler = async (event, context) => {
         message: error.message 
       })
     };
-  } finally {
-    await client.end();
   }
 };
