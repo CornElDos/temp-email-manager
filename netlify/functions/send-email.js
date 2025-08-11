@@ -35,48 +35,29 @@ exports.handler = async (event, context) => {
     // Professional email templates
     const templates = {
       welcome: {
-        subject: 'Bekräfta din registrering',
+        subject: 'Tack för din jobbansökan',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0;">
-              <h1 style="margin: 0; font-size: 28px;">🎯 Bekräfta ditt konto</h1>
+              <h1 style="margin: 0; font-size: 28px;">🎯 Vi är glada att du har tagit kontakt med oss</h1>
             </div>
             
             <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
               <h2 style="color: #333; margin-top: 0;">Välkommen!</h2>
               
               <p style="color: #666; font-size: 16px; line-height: 1.6;">
-                Din registrering är nästan klar. För att aktivera ditt konto, använd verifieringskoden nedan:
+                Har du tid att komma den 27de nästa månad?
               </p>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-size: 32px; font-weight: bold; padding: 20px; border-radius: 10px; letter-spacing: 3px; display: inline-block;">
-                  ${verificationCode}
-                </div>
-              </div>
-              
-              <p style="color: #666; font-size: 14px; text-align: center;">
-                Eller klicka på länken nedan för automatisk verifiering:
-              </p>
+
+
               
               <div style="text-align: center; margin: 20px 0;">
-                <a href="${verificationLink}" style="background: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-                  Bekräfta konto automatiskt
-                </a>
+                Vänligen<br>Corn El Dos
               </div>
               
-              <div style="border-top: 1px solid #dee2e6; margin-top: 30px; padding-top: 20px;">
-                <p style="color: #999; font-size: 12px; margin: 0;">
-                  <strong>Viktigt:</strong> Denna kod är giltig i 10 minuter.<br>
-                  Om du inte har begärt denna verifiering, ignorera detta meddelande.
-                </p>
-              </div>
+
               
-              <div style="text-align: center; margin-top: 20px;">
-                <p style="color: #999; font-size: 11px; margin: 0;">
-                  Säker verifiering • Automatiskt genererat meddelande
-                </p>
-              </div>
+        
             </div>
           </div>
         `
