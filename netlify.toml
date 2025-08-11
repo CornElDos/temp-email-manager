@@ -3,6 +3,9 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  
+[functions]
+  external_node_modules = ["@supabase/supabase-js"]
 
 [[headers]]
   for = "/*"
