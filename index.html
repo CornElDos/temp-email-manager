@@ -106,35 +106,27 @@
             border-bottom: 2px solid #f0f0f0;
         }
 
-        .email-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .email-display {
-            font-family: 'Courier New', monospace;
-            background: #f8f9fa;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 2px solid #e9ecef;
-            font-weight: bold;
-            color: #495057;
-        }
-
-        .copy-btn {
-            padding: 8px 12px;
-            background: #28a745;
+        .create-email-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
         }
 
-        .copy-btn:hover {
-            background: #218838;
+        .create-email-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .create-email-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .logout-btn {
@@ -151,12 +143,12 @@
             background: #c82333;
         }
 
-        /* Mail List Styles */
-        .mail-section {
+        /* Email List Styles */
+        .email-section {
             margin-bottom: 30px;
         }
 
-        .mail-section h3 {
+        .email-section h3 {
             margin-bottom: 15px;
             color: #333;
             display: flex;
@@ -178,10 +170,157 @@
             background: #138496;
         }
 
+        .email-list {
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .email-item {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .email-item.used {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .email-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .email-address {
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .email-password {
+            color: #666;
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .verification-code {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .email-status {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+
+        .email-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .delete-btn, .use-btn, .check-btn {
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .use-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .use-btn:hover {
+            background: #218838;
+        }
+
+        .use-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .check-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .check-btn:hover {
+            background: #138496;
+        }
+
+        .check-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-active { background: #28a745; }
+        .status-waiting { background: #ffc107; }
+        .status-verified { background: #17a2b8; }
+        .status-used { background: #6f42c1; }
+
+        .no-emails {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Mail List Styles */
+        .mail-section {
+            margin-top: 30px;
+        }
+
         .mail-list {
             border: 1px solid #e1e1e1;
             border-radius: 8px;
             overflow: hidden;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         .mail-item {
@@ -455,6 +594,24 @@
             100% { transform: rotate(360deg); }
         }
 
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #c3e6cb;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .container {
@@ -471,14 +628,8 @@
                 gap: 15px;
             }
 
-            .email-info {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .email-display {
-                width: 100%;
-                text-align: center;
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             }
         }
     </style>
@@ -508,11 +659,7 @@
         <!-- Main App -->
         <div id="mainApp" class="main-app hidden">
             <div class="app-header">
-                <div class="email-info">
-                    <div class="email-display" id="currentEmail"></div>
-                    <button class="copy-btn" id="copyEmailBtn">📋 Kopiera</button>
-                    <button class="btn" id="generateNewBtn">🔄 Ny Email</button>
-                </div>
+                <button class="create-email-btn" id="createEmailBtn">✉️ Skapa Ny Email</button>
                 <button class="logout-btn" id="logoutBtn">Logga ut</button>
             </div>
 
@@ -523,21 +670,40 @@
                     <div class="stat-label">Totalt Emails</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="totalMails">0</div>
-                    <div class="stat-label">Inkommande Mail</div>
+                    <div class="stat-number" id="verifiedEmails">0</div>
+                    <div class="stat-label">Verifierade</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="totalCodes">0</div>
-                    <div class="stat-label">Verifieringskoder</div>
+                    <div class="stat-number" id="waitingEmails">0</div>
+                    <div class="stat-label">Väntar på mail</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="usedEmails">0</div>
+                    <div class="stat-label">Använda</div>
+                </div>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="statusMessage"></div>
+
+            <!-- Email Section -->
+            <div class="email-section">
+                <h3>📬 Skapade Emails</h3>
+                
+                <div id="emailList" class="email-list">
+                    <div class="no-emails">
+                        <p>Inga emails skapade än...</p>
+                        <p style="font-size: 14px; margin-top: 10px;">Klicka på "Skapa Ny Email" för att börja</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Mail Section -->
             <div class="mail-section">
                 <h3>
-                    📬 Inkommande Mail
-                    <button class="refresh-btn" id="refreshMailBtn">
-                        <span id="refreshText">🔄 Uppdatera</span>
+                    📨 Inkommande Mail
+                    <button class="refresh-btn" id="refreshAllBtn">
+                        <span id="refreshText">🔄 Uppdatera alla</span>
                         <span id="refreshLoader" class="loading hidden"></span>
                     </button>
                 </h3>
@@ -590,10 +756,8 @@
         class TempEmailManager {
             constructor() {
                 this.currentUser = null;
-                this.currentEmail = null;
-                this.currentPassword = null;
                 this.emails = [];
-                this.mails = [];
+                this.allMails = [];
                 this.refreshInterval = null;
                 
                 this.initEventListeners();
@@ -612,9 +776,8 @@
 
                 // Main app
                 document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
-                document.getElementById('copyEmailBtn').addEventListener('click', () => this.copyEmail());
-                document.getElementById('generateNewBtn').addEventListener('click', () => this.generateNewEmail());
-                document.getElementById('refreshMailBtn').addEventListener('click', () => this.refreshMails());
+                document.getElementById('createEmailBtn').addEventListener('click', () => this.createEmail());
+                document.getElementById('refreshAllBtn').addEventListener('click', () => this.refreshAllMails());
 
                 // Modal
                 document.getElementById('closeModal').addEventListener('click', () => this.closeModal());
@@ -632,9 +795,9 @@
             }
 
             checkLoginStatus() {
-                const savedUser = localStorage.getItem('tempEmailUser');
-                if (savedUser) {
-                    this.currentUser = savedUser;
+                const savedUser = localStorage.getItem('isLoggedIn');
+                if (savedUser === 'true') {
+                    this.currentUser = 'banan';
                     this.showMainApp();
                     this.loadUserData();
                 }
@@ -662,7 +825,7 @@
 
                 try {
                     this.currentUser = username;
-                    localStorage.setItem('tempEmailUser', username);
+                    localStorage.setItem('isLoggedIn', 'true');
                     
                     setTimeout(() => {
                         this.showMainApp();
@@ -678,12 +841,10 @@
             }
 
             logout() {
-                localStorage.removeItem('tempEmailUser');
+                localStorage.removeItem('isLoggedIn');
                 this.currentUser = null;
-                this.currentEmail = null;
-                this.currentPassword = null;
                 this.emails = [];
-                this.mails = [];
+                this.allMails = [];
                 
                 if (this.refreshInterval) {
                     clearInterval(this.refreshInterval);
@@ -703,147 +864,304 @@
             async loadUserData() {
                 try {
                     await this.loadEmails();
-                    
-                    if (this.emails.length === 0) {
-                        await this.generateNewEmail();
-                    } else {
-                        const lastEmail = this.emails[this.emails.length - 1];
-                        this.currentEmail = lastEmail.email;
-                        this.currentPassword = lastEmail.password;
-                        this.updateEmailDisplay();
-                    }
-                    
-                    await this.refreshMails();
+                    this.displayEmails();
                     this.updateStats();
                     
-                    // Auto-refresh mails every 30 seconds
-                    this.refreshInterval = setInterval(() => {
-                        this.refreshMails(true);
-                    }, 30000);
+                    // Start auto-refresh
+                    this.startAutoRefresh();
                     
                 } catch (error) {
                     console.error('Error loading user data:', error);
+                    this.showStatus('Fel vid laddning av data', 'error');
                 }
             }
 
             async loadEmails() {
                 try {
                     const response = await fetch('/.netlify/functions/get-emails');
+                    
+                    // Check if response is ok and content-type is JSON
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        // Response is not JSON (probably HTML error page)
+                        const text = await response.text();
+                        console.warn('Non-JSON response from get-emails:', text.substring(0, 200));
+                        throw new Error('API returned HTML instead of JSON - function may not exist');
+                    }
+                    
                     const data = await response.json();
                     
                     if (data.success) {
                         this.emails = data.emails || [];
+                        console.log('✅ Loaded emails from API:', this.emails.length);
+                    } else {
+                        throw new Error(data.error || 'API returned unsuccessful response');
                     }
                 } catch (error) {
-                    console.error('Error loading emails:', error);
+                    console.error('❌ Error loading emails from API:', error.message);
+                    
+                    // Fallback to localStorage
+                    this.emails = JSON.parse(localStorage.getItem('tempEmails') || '[]');
+                    console.log('📁 Using localStorage emails:', this.emails.length);
+                    
+                    if (this.emails.length === 0) {
+                        this.showStatus('⚠️ API inte tillgänglig - arbetar offline. Skapa emails fungerar fortfarande!', 'error');
+                    } else {
+                        this.showStatus(`📁 API inte tillgänglig - visar ${this.emails.length} lokalt sparade emails`, 'error');
+                    }
                 }
             }
 
-            async generateNewEmail() {
-                const btn = document.getElementById('generateNewBtn');
-                btn.textContent = '⏳ Genererar...';
-                btn.disabled = true;
-
+            async saveEmails() {
                 try {
-                    const timestamp = Date.now().toString().slice(-6);
-                    const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-                    const email = `user${timestamp}${randomNum}@maildrop.cc`;
-                    const password = Math.random().toString(36).slice(-8);
-
                     const response = await fetch('/.netlify/functions/save-emails', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            email: email,
-                            password: password,
-                            created_by: this.currentUser
-                        })
+                        body: JSON.stringify({ emails: this.emails })
                     });
+
+                    // Check if response is ok and content-type is JSON
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        console.warn('Non-JSON response from save-emails:', text.substring(0, 200));
+                        throw new Error('API returned HTML instead of JSON - function may not exist');
+                    }
 
                     const data = await response.json();
                     
-                    if (data.success) {
-                        this.currentEmail = email;
-                        this.currentPassword = password;
-                        await this.loadEmails();
-                        this.updateEmailDisplay();
-                        this.updateStats();
-                        
-                        // Clear previous mails and refresh
-                        this.mails = [];
-                        await this.refreshMails();
-                    } else {
-                        throw new Error(data.error || 'Failed to save email');
+                    if (!data.success) {
+                        throw new Error(data.error || 'Failed to save');
                     }
+                    
+                    console.log('✅ Emails saved to API successfully');
+                    
+                    // Also save locally as backup
+                    localStorage.setItem('tempEmails', JSON.stringify(this.emails));
                 } catch (error) {
-                    console.error('Error generating email:', error);
-                    alert('Ett fel uppstod vid generering av ny email');
+                    console.error('❌ Error saving emails to API:', error.message);
+                    
+                    // Save locally as fallback
+                    localStorage.setItem('tempEmails', JSON.stringify(this.emails));
+                    console.log('📁 Emails saved to localStorage as fallback');
+                    
+                    // Only show error if it's the first save attempt
+                    if (!localStorage.getItem('apiErrorShown')) {
+                        this.showStatus('⚠️ API inte tillgänglig - sparar lokalt istället', 'error');
+                        localStorage.setItem('apiErrorShown', 'true');
+                    }
+                }
+            }
+
+            async createEmail() {
+                const btn = document.getElementById('createEmailBtn');
+                btn.textContent = '⏳ Skapar...';
+                btn.disabled = true;
+
+                try {
+                    // Generate random email address (Maildrop.cc skapar INTE emails via API - bara läser)
+                    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                    let randomString = '';
+                    for (let i = 0; i < 8; i++) {
+                        randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+                    const email = `${randomString}@maildrop.cc`;
+                    
+                    // Generate secure password
+                    const password = this.generateSecurePassword();
+                    const timestamp = new Date().toLocaleString('sv-SE');
+
+                    const emailObj = {
+                        id: Date.now(),
+                        email: email,
+                        password: password,
+                        verificationCode: null,
+                        status: 'waiting',
+                        used: false,
+                        created: timestamp,
+                        lastChecked: null
+                    };
+
+                    this.emails.unshift(emailObj);
+                    await this.saveEmails();
+                    this.displayEmails();
+                    this.updateStats();
+
+                    this.showStatus(`Email skapad: ${email}`, 'success');
+
+                    // Start checking for verification mail after 5 seconds
+                    setTimeout(() => this.checkMails(emailObj), 5000);
+
+                } catch (error) {
+                    console.error('Error creating email:', error);
+                    this.showStatus('Fel vid skapande av email', 'error');
                 } finally {
-                    btn.textContent = '🔄 Ny Email';
+                    btn.textContent = '✉️ Skapa Ny Email';
                     btn.disabled = false;
                 }
             }
 
-            updateEmailDisplay() {
-                if (this.currentEmail) {
-                    document.getElementById('currentEmail').textContent = this.currentEmail;
-                }
+            generateSecurePassword(length = 12) {
+                const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+                const array = new Uint8Array(length);
+                window.crypto.getRandomValues(array);
+                return Array.from(array, byte => charset[byte % charset.length]).join('');
             }
 
-            async copyEmail() {
-                if (this.currentEmail) {
-                    try {
-                        await navigator.clipboard.writeText(this.currentEmail);
-                        const btn = document.getElementById('copyEmailBtn');
-                        const originalText = btn.textContent;
-                        btn.textContent = '✅ Kopierad!';
-                        setTimeout(() => {
-                            btn.textContent = originalText;
-                        }, 2000);
-                    } catch (error) {
-                        console.error('Error copying email:', error);
-                    }
-                }
-            }
-
-            async refreshMails(silent = false) {
-                if (!this.currentEmail) return;
-
-                const btn = document.getElementById('refreshMailBtn');
-                const refreshText = document.getElementById('refreshText');
-                const refreshLoader = document.getElementById('refreshLoader');
-
-                if (!silent) {
-                    refreshText.classList.add('hidden');
-                    refreshLoader.classList.remove('hidden');
-                    btn.disabled = true;
+            async checkMails(emailObj) {
+                if (emailObj.used || emailObj.status === 'verified') {
+                    return; // Skip if already used or verified
                 }
 
                 try {
-                    const username = this.currentEmail.split('@')[0];
+                    // Extract username from email (part before @)
+                    const username = emailObj.email.split('@')[0];
+                    
                     const response = await fetch(`/.netlify/functions/check-mails?mailbox=${username}`);
+                    
+                    // Check if response is ok and content-type is JSON
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        console.warn('Non-JSON response from check-mails:', text.substring(0, 200));
+                        throw new Error('check-mails function returned HTML instead of JSON');
+                    }
+                    
                     const data = await response.json();
 
-                    if (data.success && data.mails) {
-                        this.mails = data.mails;
-                        this.renderMailList();
-                        this.updateStats();
+                    if (data.success && data.mails && data.mails.length > 0) {
+                        // Look for verification codes in mail content
+                        let verificationCode = null;
+                        for (const mail of data.mails) {
+                            const content = (mail.data || '') + (mail.html || '');
+                            const codes = content.match(/\b\d{4,8}\b/g);
+                            if (codes && codes.length > 0) {
+                                verificationCode = codes[0];
+                                break;
+                            }
+                        }
+
+                        if (verificationCode) {
+                            emailObj.verificationCode = verificationCode;
+                            emailObj.status = 'verified';
+                            emailObj.lastChecked = new Date().toLocaleString('sv-SE');
+                            
+                            await this.saveEmails();
+                            this.displayEmails();
+                            this.updateStats();
+
+                            this.showStatus(`🎉 Verifieringskod mottagen för ${emailObj.email}: ${verificationCode}`, 'success');
+                        } else {
+                            emailObj.lastChecked = new Date().toLocaleString('sv-SE');
+                            await this.saveEmails();
+                            console.log(`📬 Kollade ${emailObj.email} - ${data.mails.length} mail men ingen verifieringskod`);
+                        }
+                    } else {
+                        emailObj.lastChecked = new Date().toLocaleString('sv-SE');
+                        await this.saveEmails();
+                        console.log(`📭 Kollade ${emailObj.email} - inga mail än`);
                     }
                 } catch (error) {
-                    console.error('Error refreshing mails:', error);
-                } finally {
-                    if (!silent) {
-                        refreshText.classList.remove('hidden');
-                        refreshLoader.classList.add('hidden');
-                        btn.disabled = false;
+                    console.error('❌ Error checking mails for', emailObj.email, ':', error.message);
+                    emailObj.lastChecked = new Date().toLocaleString('sv-SE') + ' (fel)';
+                    await this.saveEmails();
+                }
+            }
+
+            async refreshAllMails() {
+                const btn = document.getElementById('refreshAllBtn');
+                const refreshText = document.getElementById('refreshText');
+                const refreshLoader = document.getElementById('refreshLoader');
+
+                refreshText.classList.add('hidden');
+                refreshLoader.classList.remove('hidden');
+                btn.disabled = true;
+
+                try {
+                    this.allMails = [];
+
+                    // Check mails for all non-used emails
+                    const activeEmails = this.emails.filter(email => !email.used);
+                    
+                    if (activeEmails.length === 0) {
+                        this.showStatus('Inga aktiva emails att kolla mail för', 'info');
+                        return;
                     }
+                    
+                    let successCount = 0;
+                    let errorCount = 0;
+                    
+                    for (const email of activeEmails) {
+                        try {
+                            const username = email.email.split('@')[0];
+                            const response = await fetch(`/.netlify/functions/check-mails?mailbox=${username}`);
+                            
+                            // Check if response is ok and content-type is JSON
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status} for ${email.email}`);
+                            }
+                            
+                            const contentType = response.headers.get('content-type');
+                            if (!contentType || !contentType.includes('application/json')) {
+                                throw new Error(`HTML response for ${email.email}`);
+                            }
+                            
+                            const data = await response.json();
+
+                            if (data.success && data.mails && data.mails.length > 0) {
+                                // Add email info to each mail
+                                data.mails.forEach(mail => {
+                                    mail.emailOwner = email.email;
+                                });
+                                this.allMails.push(...data.mails);
+                                successCount++;
+                            } else {
+                                successCount++;
+                                console.log(`📭 ${email.email}: Inga mail`);
+                            }
+
+                            // Rate limiting
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                        } catch (error) {
+                            console.error('❌ Error checking mail for', email.email, ':', error.message);
+                            errorCount++;
+                        }
+                    }
+
+                    this.renderMailList();
+                    
+                    if (errorCount === 0) {
+                        this.showStatus(`✅ Uppdaterade mail för ${successCount}/${activeEmails.length} emails - ${this.allMails.length} mail hittades`, 'success');
+                    } else {
+                        this.showStatus(`⚠️ Uppdaterade ${successCount}/${activeEmails.length} emails (${errorCount} fel) - ${this.allMails.length} mail hittades`, 'error');
+                    }
+
+                } catch (error) {
+                    console.error('❌ Error refreshing all mails:', error);
+                    this.showStatus('❌ Fel vid uppdatering av mail - kolla om API:erna fungerar', 'error');
+                } finally {
+                    refreshText.classList.remove('hidden');
+                    refreshLoader.classList.add('hidden');
+                    btn.disabled = false;
                 }
             }
 
             renderMailList() {
                 const mailListElement = document.getElementById('mailList');
                 
-                if (this.mails.length === 0) {
+                if (this.allMails.length === 0) {
                     mailListElement.innerHTML = `
                         <div class="no-mails">
                             <p>Inga mail hittades än...</p>
@@ -853,7 +1171,7 @@
                     return;
                 }
 
-                const mailsHtml = this.mails.map(mail => {
+                const mailsHtml = this.allMails.map(mail => {
                     const senderColor = this.getSenderColor(mail.headerfrom);
                     const senderInitial = mail.headerfrom.charAt(0).toUpperCase();
                     const preview = this.getMailPreview(mail.data);
@@ -866,7 +1184,7 @@
                             </div>
                             <div class="mail-content">
                                 <div class="mail-subject">${this.escapeHtml(mail.subject)}</div>
-                                <div class="mail-from">Från: ${this.escapeHtml(mail.headerfrom)}</div>
+                                <div class="mail-from">Från: ${this.escapeHtml(mail.headerfrom)} → ${mail.emailOwner}</div>
                                 <div class="mail-date">${formattedDate}</div>
                                 <div class="mail-preview">${this.escapeHtml(preview)}</div>
                             </div>
@@ -877,8 +1195,123 @@
                 mailListElement.innerHTML = mailsHtml;
             }
 
+            displayEmails() {
+                const emailListElement = document.getElementById('emailList');
+                
+                if (this.emails.length === 0) {
+                    emailListElement.innerHTML = `
+                        <div class="no-emails">
+                            <p>Inga emails skapade än...</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Klicka på "Skapa Ny Email" för att börja</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                emailListElement.innerHTML = this.emails.map(email => `
+                    <div class="email-item ${email.used ? 'used' : ''}">
+                        <div class="email-controls">
+                            <button class="check-btn" onclick="tempEmailManager.checkMails(tempEmailManager.emails.find(e => e.id === ${email.id}))" 
+                                    ${email.used ? 'disabled' : ''}>
+                                🔄
+                            </button>
+                            <button class="use-btn" onclick="tempEmailManager.markAsUsed(${email.id})" 
+                                    ${email.used ? 'disabled' : ''}>
+                                ${email.used ? '✓' : 'Använd'}
+                            </button>
+                            <button class="delete-btn" onclick="tempEmailManager.deleteEmail(${email.id})">&times;</button>
+                        </div>
+                        <div class="email-address">
+                            <span class="status-indicator status-${email.used ? 'used' : email.status}"></span>
+                            ${email.email} ${email.used ? '<strong style="color: #6f42c1;">(ANVÄND)</strong>' : ''}
+                        </div>
+                        <div class="email-password">
+                            <strong>Lösenord:</strong> ${email.password}
+                        </div>
+                        ${email.verificationCode ? 
+                            `<div class="verification-code">Verifieringskod: ${email.verificationCode}</div>` : 
+                            ''
+                        }
+                        <div class="email-status">
+                            Status: ${email.used ? 'Använd' : this.getStatusText(email.status)} 
+                            ${email.status === 'waiting' && !email.used ? '<span class="loading"></span>' : ''}
+                        </div>
+                        <div class="timestamp">
+                            Skapad: ${email.created}
+                            ${email.lastChecked ? `<br>Senast kollad: ${email.lastChecked}` : ''}
+                            ${email.used ? `<br><strong style="color: #6f42c1;">Markerad som använd</strong>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            getStatusText(status) {
+                switch(status) {
+                    case 'waiting': return 'Väntar på mail';
+                    case 'verified': return 'Verifierad';
+                    case 'active': return 'Aktiv';
+                    default: return 'Okänd';
+                }
+            }
+
+            async markAsUsed(id) {
+                const email = this.emails.find(e => e.id === id);
+                if (email && !email.used) {
+                    email.used = true;
+                    await this.saveEmails();
+                    this.displayEmails();
+                    this.updateStats();
+                    this.showStatus(`Email markerad som använd: ${email.email}`, 'success');
+                }
+            }
+
+            async deleteEmail(id) {
+                if (confirm('Är du säker på att du vill ta bort denna email?')) {
+                    const email = this.emails.find(e => e.id === id);
+                    this.emails = this.emails.filter(email => email.id !== id);
+                    await this.saveEmails();
+                    this.displayEmails();
+                    this.updateStats();
+                    this.showStatus(`Email borttagen: ${email?.email}`, 'success');
+                }
+            }
+
+            updateStats() {
+                document.getElementById('totalEmails').textContent = this.emails.length;
+                document.getElementById('verifiedEmails').textContent = 
+                    this.emails.filter(e => e.status === 'verified').length;
+                document.getElementById('waitingEmails').textContent = 
+                    this.emails.filter(e => e.status === 'waiting' && !e.used).length;
+                document.getElementById('usedEmails').textContent = 
+                    this.emails.filter(e => e.used).length;
+            }
+
+            startAutoRefresh() {
+                // Auto-refresh every 30 seconds
+                this.refreshInterval = setInterval(async () => {
+                    await this.loadEmails();
+                    
+                    // Check mails for waiting emails
+                    const waitingEmails = this.emails.filter(email => 
+                        email.status === 'waiting' && !email.used
+                    );
+                    
+                    for (const email of waitingEmails) {
+                        // Don't check too frequently for the same email
+                        const lastChecked = email.lastChecked ? new Date(email.lastChecked) : null;
+                        const now = new Date();
+                        const timeSinceLastCheck = lastChecked ? (now - lastChecked) / 1000 : Infinity;
+                        
+                        if (timeSinceLastCheck > 60) { // Check at most once per minute
+                            await this.checkMails(email);
+                            await new Promise(resolve => setTimeout(resolve, 1000)); // Rate limiting
+                        }
+                    }
+                }, 30000);
+            }
+
+            // Mail modal functions
             getSenderColor(sender) {
-                // Generate consistent color based on sender
                 let hash = 0;
                 for (let i = 0; i < sender.length; i++) {
                     hash = sender.charCodeAt(i) + ((hash << 5) - hash);
@@ -912,7 +1345,7 @@
             }
 
             openMailModal(mailId) {
-                const mail = this.mails.find(m => m.id === mailId);
+                const mail = this.allMails.find(m => m.id === mailId);
                 if (!mail) return;
 
                 // Update modal title
@@ -920,6 +1353,7 @@
 
                 // Update mail meta
                 document.getElementById('mailMeta').innerHTML = `
+                    <div><strong>Till:</strong> ${this.escapeHtml(mail.emailOwner)}</div>
                     <div><strong>Från:</strong> ${this.escapeHtml(mail.headerfrom)}</div>
                     <div><strong>Ämne:</strong> ${this.escapeHtml(mail.subject)}</div>
                     <div><strong>Datum:</strong> ${new Date(mail.date).toLocaleString('sv-SE')}</div>
@@ -992,16 +1426,12 @@
             }
 
             getLinkDescription(url) {
-                const domain = new URL(url).hostname.toLowerCase();
-                
                 if (url.includes('verify') || url.includes('confirm') || url.includes('activation')) {
                     return '🔐 Verifieringslänk';
                 } else if (url.includes('reset') || url.includes('password')) {
                     return '🔑 Lösenordsåterställning';
                 } else if (url.includes('unsubscribe')) {
                     return '📧 Avregistrera';
-                } else if (domain.includes('google') || domain.includes('microsoft') || domain.includes('apple')) {
-                    return '🏢 Större tjänsteleverantör';
                 } else {
                     return '🔗 Extern länk';
                 }
@@ -1049,18 +1479,12 @@
                 iframe.src = '';
             }
 
-            updateStats() {
-                document.getElementById('totalEmails').textContent = this.emails.length;
-                document.getElementById('totalMails').textContent = this.mails.length;
-                
-                // Count verification codes in mails
-                let codeCount = 0;
-                this.mails.forEach(mail => {
-                    const content = (mail.data || '') + (mail.html || '');
-                    const codes = content.match(/\b\d{4,8}\b/g);
-                    if (codes) codeCount += codes.length;
-                });
-                document.getElementById('totalCodes').textContent = codeCount;
+            showStatus(message, type = 'info') {
+                const statusDiv = document.getElementById('statusMessage');
+                statusDiv.innerHTML = `<div class="${type === 'error' ? 'error-message' : 'success-message'}">${message}</div>`;
+                setTimeout(() => {
+                    statusDiv.innerHTML = '';
+                }, 5000);
             }
 
             escapeHtml(text) {
