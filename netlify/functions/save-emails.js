@@ -44,6 +44,7 @@ exports.handler = async (event, context) => {
     
     if (requestBody.emails && Array.isArray(requestBody.emails)) {
       // Frontend sends { emails: [...] }
+      // Only save emails that don't exist in database yet
       emailsToSave = requestBody.emails.map(emailObj => ({
         email: emailObj.email,
         password: emailObj.password,
@@ -74,21 +75,34 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Clear existing emails and insert new ones
-    // First, delete all existing emails
-    const { error: deleteError } = await supabase
+    // Get existing emails to avoid duplicates
+    const { data: existingEmails } = await supabase
       .from('temp_emails')
-      .delete()
-      .neq('id', 0); // Delete all rows
+      .select('email');
 
-    if (deleteError) {
-      console.error('Delete error:', deleteError);
+    const existingEmailAddresses = (existingEmails || []).map(e => e.email);
+    
+    // Filter out emails that already exist
+    const newEmails = emailsToSave.filter(email => 
+      !existingEmailAddresses.includes(email.email)
+    );
+
+    if (newEmails.length === 0) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ 
+          success: true, 
+          saved: 0,
+          message: 'No new emails to save (all already exist)'
+        })
+      };
     }
 
-    // Insert new emails
+    // Insert only new emails (no deletion!)
     const { data, error } = await supabase
       .from('temp_emails')
-      .insert(emailsToSave)
+      .insert(newEmails)
       .select();
 
     if (error) {
