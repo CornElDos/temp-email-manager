@@ -50,14 +50,17 @@ exports.handler = async (event, context) => {
     
     console.log('Checking mailbox:', mailbox);
     
-    // Use built-in fetch (no need for node-fetch in modern Netlify)
+    // Use built-in fetch with required anti-CSRF headers
     const response = await fetch('https://api.maildrop.cc/graphql', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-apollo-operation-name': 'InboxQuery',
+        'apollo-require-preflight': 'true',
+        'User-Agent': 'TempEmailManager/1.0'
       },
       body: JSON.stringify({
-        query: `query { inbox(mailbox: "${mailbox}") { id mailfrom subject body } }`
+        query: `query InboxQuery { inbox(mailbox: "${mailbox}") { id mailfrom subject body } }`
       })
     });
 
