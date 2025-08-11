@@ -827,12 +827,27 @@
         // Save emails to database
         async function saveEmails() {
             try {
-                await callNetlifyFunction('save-emails', { emails });
-                // Also save locally as backup
-                localStorage.setItem('tempEmails', JSON.stringify(emails));
+                const result = await callNetlifyFunction('save-emails', { emails });
+                
+                if (result.success) {
+                    console.log(`Successfully saved ${result.saved} emails to database`);
+                    // Also save locally as backup
+                    localStorage.setItem('tempEmails', JSON.stringify(emails));
+                } else {
+                    throw new Error(result.error || 'Unknown save error');
+                }
             } catch (error) {
                 console.error('Error saving emails:', error);
-                showStatus('Fel vid sparning. Data sparad lokalt.', 'error');
+                
+                // Show more specific error message
+                if (error.message.includes('400')) {
+                    showStatus('Fel vid sparning: Data för stor eller ogiltig format. Sparar lokalt.', 'error');
+                } else if (error.message.includes('500')) {
+                    showStatus('Fel vid sparning: Server-problem. Sparar lokalt.', 'error');
+                } else {
+                    showStatus('Fel vid sparning: ' + error.message + '. Sparar lokalt.', 'error');
+                }
+                
                 // Save locally as fallback
                 localStorage.setItem('tempEmails', JSON.stringify(emails));
             }
@@ -922,40 +937,64 @@ Temp Email Manager Team
                     email: emailObj.email 
                 });
 
-                if (result.mails && result.mails.length > 0) {
-                    // Update mails array
+                if (result.success && result.mails && result.mails.length > 0) {
+                    // Store current mail count for comparison
+                    const previousMailCount = emailObj.mails ? emailObj.mails.length : 0;
+                    
+                    // Update mails array with fresh data from API
                     emailObj.mails = result.mails;
                     emailObj.status = 'verified';
                     emailObj.lastChecked = new Date().toLocaleString('sv-SE');
                     
                     // Check if we got new mails
-                    const newMailCount = result.mails.length - (emailObj.lastMailCount || 0);
+                    const newMailCount = result.mails.length - previousMailCount;
                     if (newMailCount > 0) {
                         showStatus(`${newMailCount} nya mail mottagna för ${emailObj.email}`, 'success');
                     }
-                    emailObj.lastMailCount = result.mails.length;
                     
                     await saveEmails();
                     displayEmails();
                     updateStats();
                 } else {
                     emailObj.lastChecked = new Date().toLocaleString('sv-SE');
+                    // Save the timestamp update even if no new mails
                     await saveEmails();
                 }
             } catch (error) {
                 console.error('Error checking mails:', error);
+                showStatus(`Fel vid kontroll av mail för ${emailObj.email}`, 'error');
             }
         }
 
         // Show mail in modal
-        function showMail(emailId, mailIndex) {
+        async function showMail(emailId, mailIndex) {
             const email = emails.find(e => e.id === emailId);
             if (!email || !email.mails || !email.mails[mailIndex]) {
                 showStatus('Mail inte funnet', 'error');
                 return;
             }
 
-            const mail = email.mails[mailIndex];
+            let mail = email.mails[mailIndex];
+            
+            // If content is truncated, fetch fresh data from API
+            if (mail.truncated) {
+                try {
+                    const result = await callNetlifyFunction('check-mails', { 
+                        email: email.email 
+                    });
+                    
+                    if (result.success && result.mails && result.mails[mailIndex]) {
+                        mail = result.mails[mailIndex];
+                        // Update the stored mail with fresh data
+                        email.mails[mailIndex] = mail;
+                        await saveEmails();
+                    }
+                } catch (error) {
+                    console.error('Error fetching fresh mail data:', error);
+                    showStatus('Varning: Mailinnehåll kan vara ofullständigt', 'error');
+                }
+            }
+            
             const verificationInfo = extractVerificationInfo(mail);
             
             document.getElementById('modalTitle').textContent = `📧 ${mail.subject || 'Inget ämne'}`;
@@ -1007,6 +1046,15 @@ Temp Email Manager Team
                 modalContent += `
                     <h4>📝 Text-innehåll:</h4>
                     <div class="mail-text-content">${mail.data}</div>
+                `;
+            }
+
+            // Show warning if content was truncated
+            if (mail.truncated) {
+                modalContent += `
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin-top: 15px; color: #856404;">
+                        <strong>⚠️ OBS:</strong> Detta mail kan ha förkortats för lagring. Fullständigt innehåll hämtades från servern.
+                    </div>
                 `;
             }
 
