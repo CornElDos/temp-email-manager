@@ -1,8 +1,17 @@
 {
-  "name": "temp-email-manager", 
-  "version": "1.0.0",
-  "description": "Temporary email manager with verification codes",
+  "name": "temp-email-manager",
+  "version": "2.0.0",
+  "description": "Temporary email manager with verification code handling",
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0"
+    "@supabase/supabase-js": "^2.39.0",
+    "resend": "^3.2.0"
+  },
+  "scripts": {
+    "build": "echo 'Static site - no build needed'",
+    "dev": "netlify dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CornElDos/temp-email-manager"
   }
 }
