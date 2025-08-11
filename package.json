@@ -1,20 +1,8 @@
 {
-  "name": "temp-email-manager",
+  "name": "temp-email-manager", 
   "version": "1.0.0",
-  "description": "Temporary Email Manager with real API integration",
-  "main": "index.html",
-  "scripts": {
-    "build": "echo 'No build step required'",
-    "dev": "netlify dev"
-  },
+  "description": "Temporary email manager with verification codes",
   "dependencies": {
-    "node-fetch": "^2.6.7",
-    "@netlify/neon": "^0.9.0"
-  },
-  "devDependencies": {
-    "netlify-cli": "^17.0.0"
-  },
-  "keywords": ["email", "temporary", "verification", "netlify"],
-  "author": "CornElDos",
-  "license": "MIT"
+    "@supabase/supabase-js": "^2.39.0"
+  }
 }
