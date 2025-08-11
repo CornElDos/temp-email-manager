@@ -496,7 +496,7 @@
         async function loadEmails() {
             try {
                 const result = await callNetlifyFunction('get-emails');
-                emails = result.emails || [];
+                emails = result || [];
                 displayEmails();
                 updateStats();
             } catch (error) {
