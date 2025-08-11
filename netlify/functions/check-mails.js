@@ -1,157 +1,94 @@
-// netlify/functions/check-mails.js
+// netlify/functions/check-mails.js - UPPDATERAD för v2
 exports.handler = async (event, context) => {
+  // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
   };
 
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers };
+    return { statusCode: 200, headers, body: '' };
   }
 
   try {
-    let email;
-    
-    // Handle both GET and POST requests
-    if (event.httpMethod === 'GET') {
-      // GET request: read from query parameters
-      email = event.queryStringParameters?.email;
-    } else if (event.httpMethod === 'POST') {
-      // POST request: read from body
-      const body = JSON.parse(event.body || '{}');
-      email = body.email;
-    }
-    
-    console.log('Received email:', email);
+    const { email } = JSON.parse(event.body);
     
     if (!email) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'Email parameter is required' })
+        body: JSON.stringify({ error: 'Email address required' })
       };
     }
 
-    // Extract mailbox name (handle both full email and just username)
-    let mailbox;
-    if (email.includes('@maildrop.cc')) {
-      mailbox = email.split('@')[0];
-    } else if (email.includes('@')) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Only @maildrop.cc emails are supported' })
-      };
-    } else {
-      // Assume it's just the username
-      mailbox = email;
-    }
-    
-    console.log('Checking mailbox:', mailbox);
-    
-    // Use built-in fetch with simple headers (matching curl example)
+    // Extract username from email (everything before @)
+    const emailUser = email.split('@')[0];
+
+    // GraphQL query to fetch all mails for this mailbox
+    const query = `
+      query CheckInbox {
+        inbox(mailbox: "${emailUser}") {
+          id
+          headerfrom
+          subject
+          data
+          html
+          date
+        }
+      }
+    `;
+
+    console.log(`Checking mails for: ${emailUser}`);
+
     const response = await fetch('https://api.maildrop.cc/graphql', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'User-Agent': 'TempEmailManager/2.0'
       },
-      body: JSON.stringify({
-        query: `query CheckInbox { inbox(mailbox: "${mailbox}") { id headerfrom subject data html date } }`
-      })
+      body: JSON.stringify({ query })
     });
 
     if (!response.ok) {
-      console.error('Maildrop API error:', response.status, response.statusText);
-      throw new Error(`Maildrop API responded with ${response.status}`);
+      throw new Error(`Maildrop API error: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
-    console.log('Maildrop response:', data);
+    const result = await response.json();
     
-    if (data.data && data.data.inbox && data.data.inbox.length > 0) {
-      const mails = data.data.inbox;
-      
-      // Look for verification mails
-      for (const mail of mails) {
-        if (isVerificationMail(mail)) {
-          // Try both data (plaintext) and html fields
-          const mailContent = mail.data || mail.html || '';
-          const code = extractVerificationCode(mailContent);
-          if (code) {
-            return {
-              statusCode: 200,
-              headers,
-              body: JSON.stringify({ 
-                verificationCode: code,
-                from: mail.headerfrom, // Changed from mailfrom to headerfrom
-                subject: mail.subject 
-              })
-            };
-          }
-        }
-      }
+    // Check for GraphQL errors
+    if (result.errors) {
+      console.error('GraphQL errors:', result.errors);
+      throw new Error('GraphQL query failed: ' + result.errors[0].message);
     }
 
+    const mails = result.data?.inbox || [];
+    
+    console.log(`Found ${mails.length} mails for ${emailUser}`);
+
+    // Return all mails (frontend will handle comparison with existing mails)
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ verificationCode: null })
+      body: JSON.stringify({
+        success: true,
+        email: email,
+        mails: mails,
+        count: mails.length,
+        checked_at: new Date().toISOString()
+      })
     };
 
   } catch (error) {
-    console.error('Error checking mails:', error);
+    console.error('Check mails error:', error);
+    
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
-        error: 'Failed to check mails',
-        details: error.message 
+        error: error.message,
+        details: 'Failed to check mails from Maildrop API'
       })
     };
   }
 };
-
-// Helper functions
-function isVerificationMail(mail) {
-  const verificationKeywords = [
-    'verify', 'verification', 'confirm', 'activate', 'otp', 'code',
-    'bc.game', 'verifiera', 'bekräfta', 'aktivera'
-  ];
-  
-  const subject = (mail.subject || '').toLowerCase();
-  const from = (mail.headerfrom || '').toLowerCase(); // Changed from mailfrom
-  const content = ((mail.data || mail.html) || '').toLowerCase(); // Use data or html
-  
-  return verificationKeywords.some(keyword => 
-    subject.includes(keyword) || 
-    from.includes(keyword) || 
-    content.includes(keyword) ||
-    from.includes('@bc.game')
-  );
-}
-
-function extractVerificationCode(content) {
-  const codePatterns = [
-    /\b(\d{6})\b/g,
-    /\b(\d{5})\b/g,
-    /\b(\d{4})\b/g,
-    /verification code[:\s]*(\d{4,6})/gi,
-    /your code[:\s]*(\d{4,6})/gi,
-    /otp[:\s]*(\d{4,6})/gi,
-    /code[:\s]*(\d{4,6})/gi
-  ];
-
-  for (const pattern of codePatterns) {
-    const matches = content.match(pattern);
-    if (matches) {
-      for (const match of matches) {
-        const code = match.replace(/\D/g, '');
-        if (code.length >= 4 && code.length <= 6) {
-          return code;
-        }
-      }
-    }
-  }
-  return null;
-}
