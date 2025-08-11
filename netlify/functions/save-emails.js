@@ -1,120 +1,99 @@
-// netlify/functions/save-emails.js
+// netlify/functions/save-emails.js - UPPDATERAD för v2
 const { createClient } = require('@supabase/supabase-js');
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 exports.handler = async (event, context) => {
   // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
   };
 
-  // Handle preflight requests
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers
-    };
-  }
-
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ error: 'Method not allowed' })
-    };
+    return { statusCode: 200, headers, body: '' };
   }
 
   try {
-    // Initialize Supabase client
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_ANON_KEY
-    );
+    const { emails } = JSON.parse(event.body);
 
-    console.log('Supabase URL:', process.env.SUPABASE_URL ? 'Set' : 'Missing');
-    console.log('Supabase Key:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'Missing');
-
-    // Parse request body
-    const requestBody = JSON.parse(event.body);
-    console.log('Request body:', requestBody);
-
-    // Handle both single email and emails array
-    let emailsToSave = [];
-    
-    if (requestBody.emails && Array.isArray(requestBody.emails)) {
-      // Frontend sends { emails: [...] }
-      // Only save emails that don't exist in database yet
-      emailsToSave = requestBody.emails.map(emailObj => ({
-        email: emailObj.email,
-        password: emailObj.password,
-        used_for: emailObj.used_for || null,
-        verification_code: emailObj.verificationCode || null
-      }));
-    } else if (requestBody.email && requestBody.password) {
-      // Direct email save { email: "...", password: "..." }
-      emailsToSave = [{
-        email: requestBody.email,
-        password: requestBody.password,
-        used_for: requestBody.used_for || null,
-        verification_code: requestBody.verification_code || null
-      }];
-    } else {
+    if (!Array.isArray(emails)) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'Email and password are required' })
+        body: JSON.stringify({ error: 'Invalid data format' })
       };
     }
 
-    if (emailsToSave.length === 0) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'No emails to save' })
-      };
-    }
+    // Compress emails data - remove large HTML content for storage
+    const compressedEmails = emails.map(email => {
+      const compressed = { ...email };
+      
+      // Store mails separately or compress them
+      if (email.mails && email.mails.length > 0) {
+        compressed.mails = email.mails.map(mail => ({
+          id: mail.id,
+          headerfrom: mail.headerfrom,
+          subject: mail.subject,
+          date: mail.date,
+          // Store only first 500 chars of data and html to save space
+          data: mail.data ? mail.data.substring(0, 500) + (mail.data.length > 500 ? '...' : '') : '',
+          html: mail.html ? mail.html.substring(0, 500) + (mail.html.length > 500 ? '...' : '') : '',
+          // Add flag to indicate if content was truncated
+          truncated: (mail.data && mail.data.length > 500) || (mail.html && mail.html.length > 500)
+        }));
+        
+        // Limit to max 10 mails per email to prevent huge payloads
+        if (compressed.mails.length > 10) {
+          compressed.mails = compressed.mails.slice(0, 10);
+        }
+      }
+      
+      return compressed;
+    });
 
-    // Get existing emails to avoid duplicates
-    const { data: existingEmails } = await supabase
+    // First, clear existing data
+    const { error: deleteError } = await supabase
       .from('temp_emails')
-      .select('email');
+      .delete()
+      .neq('id', 0); // Delete all records
 
-    const existingEmailAddresses = (existingEmails || []).map(e => e.email);
+    if (deleteError && deleteError.code !== 'PGRST116') { // PGRST116 = no rows found, which is OK
+      console.error('Delete error:', deleteError);
+    }
+
+    // Insert new data in batches to avoid size limits
+    const batchSize = 50; // Process 50 emails at a time
+    const batches = [];
     
-    // Filter out emails that already exist
-    const newEmails = emailsToSave.filter(email => 
-      !existingEmailAddresses.includes(email.email)
-    );
-
-    if (newEmails.length === 0) {
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ 
-          success: true, 
-          saved: 0,
-          message: 'No new emails to save (all already exist)'
-        })
-      };
+    for (let i = 0; i < compressedEmails.length; i += batchSize) {
+      batches.push(compressedEmails.slice(i, i + batchSize));
     }
 
-    // Insert only new emails (no deletion!)
-    const { data, error } = await supabase
-      .from('temp_emails')
-      .insert(newEmails)
-      .select();
+    for (const batch of batches) {
+      const { error: insertError } = await supabase
+        .from('temp_emails')
+        .insert(
+          batch.map(email => ({
+            email_id: email.id,
+            email_address: email.email,
+            password: email.password,
+            mails: JSON.stringify(email.mails || []),
+            status: email.status,
+            used: email.used,
+            created: email.created,
+            last_checked: email.lastChecked
+          }))
+        );
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ 
-          error: 'Database error', 
-          details: error.message 
-        })
-      };
+      if (insertError) {
+        console.error('Insert error for batch:', insertError);
+        throw insertError;
+      }
     }
 
     return {
@@ -122,19 +101,20 @@ exports.handler = async (event, context) => {
       headers,
       body: JSON.stringify({ 
         success: true, 
-        saved: data.length,
-        emails: data 
+        saved: compressedEmails.length,
+        message: 'Emails saved successfully'
       })
     };
-    
+
   } catch (error) {
-    console.error('Function error:', error);
+    console.error('Save emails error:', error);
+    
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
-        error: 'Server error',
-        details: error.message 
+        error: error.message,
+        details: 'Failed to save emails to database'
       })
     };
   }
