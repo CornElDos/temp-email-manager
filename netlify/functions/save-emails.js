@@ -36,9 +36,29 @@ exports.handler = async (event, context) => {
     console.log('Supabase Key:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'Missing');
 
     // Parse request body
-    const { email, password, used_for, verification_code } = JSON.parse(event.body);
+    const requestBody = JSON.parse(event.body);
+    console.log('Request body:', requestBody);
 
-    if (!email || !password) {
+    // Handle both single email and emails array
+    let emailsToSave = [];
+    
+    if (requestBody.emails && Array.isArray(requestBody.emails)) {
+      // Frontend sends { emails: [...] }
+      emailsToSave = requestBody.emails.map(emailObj => ({
+        email: emailObj.email,
+        password: emailObj.password,
+        used_for: emailObj.used_for || null,
+        verification_code: emailObj.verificationCode || null
+      }));
+    } else if (requestBody.email && requestBody.password) {
+      // Direct email save { email: "...", password: "..." }
+      emailsToSave = [{
+        email: requestBody.email,
+        password: requestBody.password,
+        used_for: requestBody.used_for || null,
+        verification_code: requestBody.verification_code || null
+      }];
+    } else {
       return {
         statusCode: 400,
         headers,
@@ -46,19 +66,30 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Save to database
+    if (emailsToSave.length === 0) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'No emails to save' })
+      };
+    }
+
+    // Clear existing emails and insert new ones
+    // First, delete all existing emails
+    const { error: deleteError } = await supabase
+      .from('temp_emails')
+      .delete()
+      .neq('id', 0); // Delete all rows
+
+    if (deleteError) {
+      console.error('Delete error:', deleteError);
+    }
+
+    // Insert new emails
     const { data, error } = await supabase
       .from('temp_emails')
-      .insert([
-        {
-          email,
-          password,
-          used_for: used_for || null,
-          verification_code: verification_code || null
-        }
-      ])
-      .select()
-      .single();
+      .insert(emailsToSave)
+      .select();
 
     if (error) {
       console.error('Supabase error:', error);
@@ -77,7 +108,8 @@ exports.handler = async (event, context) => {
       headers,
       body: JSON.stringify({ 
         success: true, 
-        email: data 
+        saved: data.length,
+        emails: data 
       })
     };
     
