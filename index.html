@@ -853,31 +853,26 @@
             }
         }
 
-        // Send test mail to new email
+        // Send verification mail to new email
         async function sendTestMail(email) {
             try {
-                const testSubject = 'Välkommen till Temp Email Manager!';
-                const testMessage = `
-Hej och välkommen!
-
-Detta är ett test-mail för att verifiera att din temporära email (${email}) fungerar korrekt.
-
-Verifieringskod: ${Math.floor(1000 + Math.random() * 9000)}
-
-Tack för att du använder vår tjänst!
-
-Temp Email Manager Team
-                `.trim();
-
-                // Du kan implementera din egen mail-sending service här
-                // För nu loggar vi bara
-                console.log('Test mail would be sent to:', email);
-                console.log('Subject:', testSubject);
-                console.log('Message:', testMessage);
+                console.log('Sending verification mail to:', email);
                 
-                return true;
+                const result = await callNetlifyFunction('send-email', { 
+                    email: email,
+                    type: 'gaming' // Use gaming template for gambling sites
+                });
+
+                if (result.success) {
+                    console.log('Verification mail sent successfully:', result.messageId);
+                    showStatus(`📧 Verifieringsmail skickat till ${email}`, 'success');
+                    return true;
+                } else {
+                    throw new Error(result.error || 'Unknown error');
+                }
             } catch (error) {
-                console.error('Error sending test mail:', error);
+                console.error('Error sending verification mail:', error);
+                showStatus(`❌ Fel vid sändning av mail till ${email}: ${error.message}`, 'error');
                 return false;
             }
         }
