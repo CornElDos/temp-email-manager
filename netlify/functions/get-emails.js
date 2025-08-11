@@ -45,10 +45,25 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Map Supabase format to frontend format
+    const mappedEmails = (data || []).map(email => ({
+      id: email.id,
+      email: email.email,
+      password: email.password,
+      verificationCode: email.verification_code,
+      status: email.verification_code ? 'verified' : 'waiting',
+      used: !!email.used_for, // Convert used_for to boolean
+      created: new Date(email.created_at).toLocaleString('sv-SE'),
+      lastChecked: null, // Could be stored separately if needed
+      used_for: email.used_for // Keep original for compatibility
+    }));
+
+    console.log(`Returning ${mappedEmails.length} emails`);
+
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(data || [])
+      body: JSON.stringify(mappedEmails)
     };
     
   } catch (error) {
