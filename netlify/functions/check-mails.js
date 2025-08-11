@@ -1,5 +1,4 @@
-const fetch = require('node-fetch');
-
+// netlify/functions/check-mails.js
 exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -12,18 +11,46 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { email } = JSON.parse(event.body || '{}');
+    let email;
     
-    if (!email || !email.includes('@maildrop.cc')) {
+    // Handle both GET and POST requests
+    if (event.httpMethod === 'GET') {
+      // GET request: read from query parameters
+      email = event.queryStringParameters?.email;
+    } else if (event.httpMethod === 'POST') {
+      // POST request: read from body
+      const body = JSON.parse(event.body || '{}');
+      email = body.email;
+    }
+    
+    console.log('Received email:', email);
+    
+    if (!email) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'Invalid email address' })
+        body: JSON.stringify({ error: 'Email parameter is required' })
       };
     }
 
-    const mailbox = email.split('@')[0];
+    // Extract mailbox name (handle both full email and just username)
+    let mailbox;
+    if (email.includes('@maildrop.cc')) {
+      mailbox = email.split('@')[0];
+    } else if (email.includes('@')) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Only @maildrop.cc emails are supported' })
+      };
+    } else {
+      // Assume it's just the username
+      mailbox = email;
+    }
     
+    console.log('Checking mailbox:', mailbox);
+    
+    // Use built-in fetch (no need for node-fetch in modern Netlify)
     const response = await fetch('https://api.maildrop.cc/graphql', {
       method: 'POST',
       headers: {
@@ -35,10 +62,12 @@ exports.handler = async (event, context) => {
     });
 
     if (!response.ok) {
+      console.error('Maildrop API error:', response.status, response.statusText);
       throw new Error(`Maildrop API responded with ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('Maildrop response:', data);
     
     if (data.data && data.data.inbox && data.data.inbox.length > 0) {
       const mails = data.data.inbox;
@@ -73,7 +102,10 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Failed to check mails' })
+      body: JSON.stringify({ 
+        error: 'Failed to check mails',
+        details: error.message 
+      })
     };
   }
 };
@@ -119,6 +151,5 @@ function extractVerificationCode(body) {
       }
     }
   }
-
   return null;
 }
