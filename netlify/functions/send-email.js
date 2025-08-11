@@ -154,12 +154,25 @@ exports.handler = async (event, context) => {
       console.log('Result keys:', result ? Object.keys(result) : 'null/undefined');
       
     } catch (resendError) {
-      console.error('Resend API Error:', resendError);
+      console.error('Resend API Error:', JSON.stringify(resendError, null, 2));
       console.error('Error type:', typeof resendError);
       console.error('Error message:', resendError.message);
+      console.error('Error name:', resendError.name);
       console.error('Error stack:', resendError.stack);
       
-      throw new Error(`Resend API error: ${resendError.message}`);
+      // Try to extract meaningful error info
+      let errorMessage = 'Unknown Resend error';
+      if (resendError.message) {
+        errorMessage = resendError.message;
+      } else if (resendError.error) {
+        errorMessage = typeof resendError.error === 'string' ? resendError.error : JSON.stringify(resendError.error);
+      } else if (typeof resendError === 'string') {
+        errorMessage = resendError;
+      } else {
+        errorMessage = JSON.stringify(resendError);
+      }
+      
+      throw new Error(`Resend API error: ${errorMessage}`);
     }
 
     // Check if Resend actually succeeded
