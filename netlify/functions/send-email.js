@@ -138,29 +138,53 @@ exports.handler = async (event, context) => {
     console.log('From: onboarding@resend.dev');
     console.log('To:', email);
     console.log('API Key present:', !!process.env.RESEND_API_KEY);
+    console.log('API Key starts with re_:', process.env.RESEND_API_KEY?.startsWith('re_'));
     
-    const result = await resend.emails.send({
-      from: 'onboarding@resend.dev', // Changed from noreply@resend.dev
-      to: email,
-      subject: template.subject,
-      html: template.html
-    });
-
-    console.log('Resend API Response:', JSON.stringify(result, null, 2));
-
-    // Check if Resend actually succeeded
-    if (!result || !result.id) {
-      throw new Error('Resend API did not return a message ID - email may not have been sent');
+    let result;
+    try {
+      result = await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: email,
+        subject: template.subject,
+        html: template.html
+      });
+      
+      console.log('Resend API Response (full):', JSON.stringify(result, null, 2));
+      console.log('Result type:', typeof result);
+      console.log('Result keys:', result ? Object.keys(result) : 'null/undefined');
+      
+    } catch (resendError) {
+      console.error('Resend API Error:', resendError);
+      console.error('Error type:', typeof resendError);
+      console.error('Error message:', resendError.message);
+      console.error('Error stack:', resendError.stack);
+      
+      throw new Error(`Resend API error: ${resendError.message}`);
     }
 
-    console.log(`Email sent successfully to ${email}:`, result);
+    // Check if Resend actually succeeded
+    if (!result) {
+      throw new Error('Resend API returned null/undefined');
+    }
+    
+    if (result.error) {
+      throw new Error(`Resend API error: ${result.error.message || result.error}`);
+    }
+    
+    if (!result.id && !result.data?.id) {
+      console.log('No ID found in result. Full result:', result);
+      throw new Error(`Resend API did not return a message ID. Response: ${JSON.stringify(result)}`);
+    }
+
+    const messageId = result.id || result.data?.id;
+    console.log(`Email sent successfully to ${email}, ID:`, messageId);
 
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
-        messageId: result.id,
+        messageId: messageId,
         verificationCode: verificationCode,
         message: `Verification email sent to ${email}`
       })
