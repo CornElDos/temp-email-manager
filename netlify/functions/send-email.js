@@ -116,7 +116,7 @@ exports.handler = async (event, context) => {
 
     // Send email via Resend
     const result = await resend.emails.send({
-      from: 'noreply@resend.dev', // Du kan ändra detta till din egen domän
+      from: 'onboarding@resend.dev', // Du kan ändra detta till din egen domän
       to: email,
       subject: template.subject,
       html: template.html
