@@ -1,61 +1,75 @@
-import { neon } from '@netlify/neon';
+// netlify/functions/save-emails.js
+const { createClient } = require('@supabase/supabase-js');
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
+  // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
   };
 
+  // Handle preflight requests
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers };
+    return {
+      statusCode: 200,
+      headers
+    };
+  }
+
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers,
+      body: JSON.stringify({ error: 'Method not allowed' })
+    };
   }
 
   try {
-    const { emails } = JSON.parse(event.body || '{}');
-    
-    if (!Array.isArray(emails)) {
+    // Initialize Supabase client
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_ANON_KEY
+    );
+
+    console.log('Supabase URL:', process.env.SUPABASE_URL ? 'Set' : 'Missing');
+    console.log('Supabase Key:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'Missing');
+
+    // Parse request body
+    const { email, password, used_for, verification_code } = JSON.parse(event.body);
+
+    if (!email || !password) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'Invalid emails data' })
+        body: JSON.stringify({ error: 'Email and password are required' })
       };
     }
 
-    const sql = neon(); // automatically uses NETLIFY_DATABASE_URL
+    // Save to database
+    const { data, error } = await supabase
+      .from('temp_emails')
+      .insert([
+        {
+          email,
+          password,
+          used_for: used_for || null,
+          verification_code: verification_code || null
+        }
+      ])
+      .select()
+      .single();
 
-    // Create table if it doesn't exist
-    await sql`
-      CREATE TABLE IF NOT EXISTS emails (
-        id BIGINT PRIMARY KEY,
-        email VARCHAR(255) NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        verification_code VARCHAR(10),
-        status VARCHAR(50) DEFAULT 'waiting',
-        used BOOLEAN DEFAULT FALSE,
-        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        last_checked TIMESTAMP
-      )
-    `;
-
-    // Clear existing data
-    await sql`DELETE FROM emails`;
-
-    // Insert all emails
-    for (const email of emails) {
-      await sql`
-        INSERT INTO emails (id, email, password, verification_code, status, used, created, last_checked)
-        VALUES (
-          ${email.id},
-          ${email.email},
-          ${email.password},
-          ${email.verificationCode || null},
-          ${email.status || 'waiting'},
-          ${email.used || false},
-          ${email.created ? new Date(email.created) : new Date()},
-          ${email.lastChecked ? new Date(email.lastChecked) : null}
-        )
-      `;
+    if (error) {
+      console.error('Supabase error:', error);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ 
+          error: 'Database error', 
+          details: error.message 
+        })
+      };
     }
 
     return {
@@ -63,19 +77,18 @@ export const handler = async (event, context) => {
       headers,
       body: JSON.stringify({ 
         success: true, 
-        message: 'Emails saved successfully',
-        count: emails.length 
+        email: data 
       })
     };
-
+    
   } catch (error) {
-    console.error('Database error:', error);
+    console.error('Function error:', error);
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
-        error: 'Failed to save emails',
-        message: error.message 
+        error: 'Server error',
+        details: error.message 
       })
     };
   }
