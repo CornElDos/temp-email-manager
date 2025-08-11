@@ -1,5 +1,10 @@
-// netlify/functions/get-emails.js
+// netlify/functions/get-emails.js - UPPDATERAD för v2
 const { createClient } = require('@supabase/supabase-js');
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 exports.handler = async (event, context) => {
   // CORS headers
@@ -9,71 +14,47 @@ exports.handler = async (event, context) => {
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
   };
 
-  // Handle preflight requests
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers
-    };
+    return { statusCode: 200, headers, body: '' };
   }
 
   try {
-    // Initialize Supabase client
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_ANON_KEY
-    );
-
-    console.log('Supabase URL:', process.env.SUPABASE_URL ? 'Set' : 'Missing');
-    console.log('Supabase Key:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'Missing');
-
-    // Get all emails from database
     const { data, error } = await supabase
       .from('temp_emails')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created', { ascending: false });
 
     if (error) {
-      console.error('Supabase error:', error);
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ 
-          error: 'Database error', 
-          details: error.message 
-        })
-      };
+      throw error;
     }
 
-    // Map Supabase format to frontend format
-    const mappedEmails = (data || []).map(email => ({
-      id: email.id,
-      email: email.email,
-      password: email.password,
-      verificationCode: email.verification_code,
-      status: email.verification_code ? 'verified' : 'waiting',
-      used: !!email.used_for, // Convert used_for to boolean
-      created: new Date(email.created_at).toLocaleString('sv-SE'),
-      lastChecked: null, // Could be stored separately if needed
-      used_for: email.used_for // Keep original for compatibility
+    // Convert database format back to app format
+    const emails = (data || []).map(record => ({
+      id: record.email_id,
+      email: record.email_address,
+      password: record.password,
+      mails: record.mails ? JSON.parse(record.mails) : [],
+      status: record.status,
+      used: record.used,
+      created: record.created,
+      lastChecked: record.last_checked
     }));
-
-    console.log(`Returning ${mappedEmails.length} emails`);
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(mappedEmails)
+      body: JSON.stringify(emails)
     };
-    
+
   } catch (error) {
-    console.error('Function error:', error);
+    console.error('Get emails error:', error);
+    
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
-        error: 'Server error',
-        details: error.message 
+        error: error.message,
+        details: 'Failed to fetch emails from database'
       })
     };
   }
