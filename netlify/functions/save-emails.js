@@ -1,4 +1,4 @@
-// netlify/functions/save-emails.js - UPPDATERAD för v2
+// netlify/functions/save-emails.js - För ditt befintliga schema
 const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
@@ -29,79 +29,79 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Compress emails data - remove large HTML content for storage
+    console.log(`Attempting to save ${emails.length} emails`);
+
+    // Clear existing data
+    const { error: deleteError } = await supabase
+      .from('temp_emails')
+      .delete()
+      .neq('id', 0);
+
+    if (deleteError && deleteError.code !== 'PGRST116') {
+      console.error('Delete error:', deleteError);
+    }
+
+    // Compress and prepare emails data
     const compressedEmails = emails.map(email => {
-      const compressed = { ...email };
+      let mails = [];
       
-      // Store mails separately or compress them
       if (email.mails && email.mails.length > 0) {
-        compressed.mails = email.mails.map(mail => ({
+        mails = email.mails.slice(0, 10).map(mail => ({
           id: mail.id,
           headerfrom: mail.headerfrom,
           subject: mail.subject,
           date: mail.date,
-          // Store only first 500 chars of data and html to save space
           data: mail.data ? mail.data.substring(0, 500) + (mail.data.length > 500 ? '...' : '') : '',
           html: mail.html ? mail.html.substring(0, 500) + (mail.html.length > 500 ? '...' : '') : '',
-          // Add flag to indicate if content was truncated
           truncated: (mail.data && mail.data.length > 500) || (mail.html && mail.html.length > 500)
         }));
-        
-        // Limit to max 10 mails per email to prevent huge payloads
-        if (compressed.mails.length > 10) {
-          compressed.mails = compressed.mails.slice(0, 10);
-        }
       }
       
-      return compressed;
+      return {
+        ...email,
+        mails: mails
+      };
     });
 
-    // First, clear existing data
-    const { error: deleteError } = await supabase
-      .from('temp_emails')
-      .delete()
-      .neq('id', 0); // Delete all records
-
-    if (deleteError && deleteError.code !== 'PGRST116') { // PGRST116 = no rows found, which is OK
-      console.error('Delete error:', deleteError);
-    }
-
-    // Insert new data in batches to avoid size limits
-    const batchSize = 50; // Process 50 emails at a time
-    const batches = [];
+    // Insert data in batches
+    const batchSize = 50;
+    let savedCount = 0;
     
     for (let i = 0; i < compressedEmails.length; i += batchSize) {
-      batches.push(compressedEmails.slice(i, i + batchSize));
-    }
+      const batch = compressedEmails.slice(i, i + batchSize);
+      
+      const insertData = batch.map(email => ({
+        email: email.email,
+        password: email.password,
+        status: email.status || 'waiting',
+        used: email.used || false,
+        mails: JSON.stringify(email.mails || []),
+        last_checked: email.lastChecked,
+        verification_code: email.verificationCode,
+        used_for: email.used ? 'marked_used' : null,
+        created_at: email.created ? new Date(email.created) : new Date()
+      }));
 
-    for (const batch of batches) {
       const { error: insertError } = await supabase
         .from('temp_emails')
-        .insert(
-          batch.map(email => ({
-            email_id: email.id,
-            email_address: email.email,
-            password: email.password,
-            mails: JSON.stringify(email.mails || []),
-            status: email.status,
-            used: email.used,
-            created: email.created,
-            last_checked: email.lastChecked
-          }))
-        );
+        .insert(insertData);
 
       if (insertError) {
         console.error('Insert error for batch:', insertError);
         throw insertError;
       }
+      
+      savedCount += batch.length;
     }
+
+    console.log(`Successfully saved ${savedCount} emails`);
 
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({ 
         success: true, 
-        saved: compressedEmails.length,
+        saved: savedCount,
         message: 'Emails saved successfully'
       })
     };
