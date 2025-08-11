@@ -50,17 +50,14 @@ exports.handler = async (event, context) => {
     
     console.log('Checking mailbox:', mailbox);
     
-    // Use built-in fetch with required anti-CSRF headers
+    // Use built-in fetch with simple headers (matching curl example)
     const response = await fetch('https://api.maildrop.cc/graphql', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-apollo-operation-name': 'InboxQuery',
-        'apollo-require-preflight': 'true',
-        'User-Agent': 'TempEmailManager/1.0'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        query: `query InboxQuery { inbox(mailbox: "${mailbox}") { id mailfrom subject body } }`
+        query: `query CheckInbox { inbox(mailbox: "${mailbox}") { id headerfrom subject data html date } }`
       })
     });
 
@@ -78,14 +75,16 @@ exports.handler = async (event, context) => {
       // Look for verification mails
       for (const mail of mails) {
         if (isVerificationMail(mail)) {
-          const code = extractVerificationCode(mail.body);
+          // Try both data (plaintext) and html fields
+          const mailContent = mail.data || mail.html || '';
+          const code = extractVerificationCode(mailContent);
           if (code) {
             return {
               statusCode: 200,
               headers,
               body: JSON.stringify({ 
                 verificationCode: code,
-                from: mail.mailfrom,
+                from: mail.headerfrom, // Changed from mailfrom to headerfrom
                 subject: mail.subject 
               })
             };
@@ -121,18 +120,18 @@ function isVerificationMail(mail) {
   ];
   
   const subject = (mail.subject || '').toLowerCase();
-  const from = (mail.mailfrom || '').toLowerCase();
-  const body = (mail.body || '').toLowerCase();
+  const from = (mail.headerfrom || '').toLowerCase(); // Changed from mailfrom
+  const content = ((mail.data || mail.html) || '').toLowerCase(); // Use data or html
   
   return verificationKeywords.some(keyword => 
     subject.includes(keyword) || 
     from.includes(keyword) || 
-    body.includes(keyword) ||
+    content.includes(keyword) ||
     from.includes('@bc.game')
   );
 }
 
-function extractVerificationCode(body) {
+function extractVerificationCode(content) {
   const codePatterns = [
     /\b(\d{6})\b/g,
     /\b(\d{5})\b/g,
@@ -144,7 +143,7 @@ function extractVerificationCode(body) {
   ];
 
   for (const pattern of codePatterns) {
-    const matches = body.match(pattern);
+    const matches = content.match(pattern);
     if (matches) {
       for (const match of matches) {
         const code = match.replace(/\D/g, '');
