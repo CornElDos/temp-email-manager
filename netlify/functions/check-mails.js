@@ -75,7 +75,7 @@ exports.handler = async (event, context) => {
 
     // Fetch detailed information for each message
     const mails = [];
-    const batchSize = 10; // Process in batches to avoid rate limits
+    const batchSize = 3; // Process in batches to avoid rate limits
 
     for (let i = 0; i < Math.min(messages.length, 3); i += batchSize) {
       const batch = messages.slice(i, i + batchSize);
