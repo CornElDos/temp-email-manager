@@ -1197,7 +1197,7 @@
                 
                 // Check mails for waiting emails
                 const waitingEmails = emails.filter(email => 
-                    email.status === 'waiting' && !email.used
+                    !email.used 
                 );
                 
                 for (const email of waitingEmails) {
