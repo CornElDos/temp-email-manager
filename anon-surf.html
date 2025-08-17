@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🕶️ Anonym Surf - Mailboxes Live</title>
+    <title>🧅 Tor Browser Installationsguide - Anonym Casino Surfning</title>
     <style>
         * {
             margin: 0;
@@ -13,552 +13,528 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            overflow: hidden;
-            height: 100vh;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #fff;
         }
 
         .header {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid #e74c3c;
             padding: 15px 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .header-top {
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
         .logo h1 {
-            color: #333;
             font-size: 24px;
-            margin: 0;
+            background: linear-gradient(45deg, #e74c3c, #f39c12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .ip-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(102, 126, 234, 0.1);
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid rgba(102, 126, 234, 0.2);
-        }
-
-        .ip-display {
-            font-weight: bold;
-            color: #333;
-            font-family: 'Courier New', monospace;
-        }
-
-        .country-flag {
-            font-size: 18px;
-        }
-
-        .controls {
+        .header-nav {
             display: flex;
             gap: 10px;
-            align-items: center;
         }
 
-        .url-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid rgba(102, 126, 234, 0.3);
-            border-radius: 25px;
-            font-size: 16px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
-        }
-
-        .url-input:focus {
-            outline: none;
-            border-color: #667eea;
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
-        }
-
-        .go-btn {
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        .nav-btn {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
             color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
-            white-space: nowrap;
+            text-decoration: none;
+            font-size: 14px;
         }
 
-        .go-btn:hover {
+        .nav-btn:hover {
+            background: #e74c3c;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
         }
 
-        .go-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
+        .container {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            height: calc(100vh - 70px);
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .proxy-selector {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(102, 126, 234, 0.2);
-            border-radius: 15px;
-            padding: 6px 12px;
-            font-size: 12px;
-            cursor: pointer;
+        .guide-panel {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 2px solid #34495e;
         }
 
-        .content-frame {
-            height: calc(100vh - 120px);
-            border: none;
-            width: 100%;
+        .download-frame {
             background: white;
         }
 
-        .status-bar {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            background: rgba(40, 167, 69, 0.9);
+        .guide-step {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid #e74c3c;
+            transition: all 0.3s ease;
+        }
+
+        .guide-step:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .step-number {
+            background: #e74c3c;
             color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            backdrop-filter: blur(10px);
-            animation: fadeIn 0.5s ease;
-        }
-
-        .loading {
-            background: rgba(255, 193, 7, 0.9);
-        }
-
-        .error {
-            background: rgba(220, 53, 69, 0.9);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .quick-sites {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
             display: flex;
-            gap: 8px;
-            margin-top: 8px;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 15px;
         }
 
-        .quick-site {
-            background: rgba(102, 126, 234, 0.1);
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            cursor: pointer;
+        .step-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #f39c12;
+        }
+
+        .step-content {
+            line-height: 1.6;
+            color: #ecf0f1;
+        }
+
+        .step-image {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 2px solid #34495e;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border-left: 3px solid #f39c12;
+        }
+
+        .warning-box {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .success-box {
+            background: rgba(39, 174, 96, 0.2);
+            border: 1px solid #27ae60;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .info-box {
+            background: rgba(52, 152, 219, 0.2);
+            border: 1px solid #3498db;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .casino-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .casino-link {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
             transition: all 0.2s ease;
         }
 
-        .quick-site:hover {
-            background: rgba(102, 126, 234, 0.2);
-            transform: translateY(-1px);
+        .casino-link:hover {
+            background: #e74c3c;
+            transform: scale(1.05);
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+            height: 4px;
+            border-radius: 2px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #e74c3c, #f39c12);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+            
+            .guide-panel {
+                max-height: 40vh;
+                order: 2;
+            }
+            
+            .download-frame {
+                order: 1;
+                min-height: 60vh;
+            }
         }
 
         @media (max-width: 768px) {
-            .header-top {
+            .header-content {
                 flex-direction: column;
                 gap: 10px;
             }
             
-            .controls {
-                width: 100%;
-                flex-wrap: wrap;
+            .logo h1 {
+                font-size: 20px;
             }
             
-            .url-input {
-                font-size: 14px;
-                padding: 10px 14px;
-                flex: 1;
-                min-width: 200px;
+            .container {
+                grid-template-columns: 1fr;
             }
             
-            .go-btn {
-                padding: 10px 16px;
-                font-size: 14px;
-                margin: 5px 2px;
-            }
-            
-            .ip-info {
-                font-size: 12px;
-            }
-            
-            .quick-sites {
-                flex-wrap: wrap;
-            }
-            
-            .quick-site {
-                margin: 2px;
+            .guide-panel {
+                padding: 20px;
             }
         }
 
-        .welcome-screen {
+        .tor-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .floating-help {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            height: calc(100vh - 120px);
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-            backdrop-filter: blur(20px);
-        }
-
-        .welcome-content {
-            text-align: center;
-            color: white;
-            max-width: 600px;
-            padding: 40px;
-        }
-
-        .welcome-content h2 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-
-        .welcome-content p {
-            font-size: 1.2em;
-            margin-bottom: 30px;
-            line-height: 1.6;
-            text-shadow: 0 1px 5px rgba(0,0,0,0.3);
-        }
-
-        .casino-examples {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .casino-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 20px;
+            justify-content: center;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            font-size: 24px;
         }
 
-        .casino-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
+        .floating-help:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="header-top">
+        <div class="header-content">
             <div class="logo">
-                <span>🧅</span>
-                <h1>Tor Browser Guide</h1>
-                <span style="font-size: 12px; color: #666;">för Anonym Casino-surfning</span>
+                <span style="font-size: 28px;">🧅</span>
+                <h1>Tor Browser Installationsguide</h1>
+                <span style="font-size: 14px; color: #bdc3c7;">Anonym Casino Surfning</span>
             </div>
-            
-            <div class="ip-info">
-                <span class="country-flag" id="countryFlag">🌍</span>
-                <span class="ip-display" id="ipDisplay">Laddar IP...</span>
-                <span style="font-size: 12px; color: #666;">→ Tor för anonymitet</span>
-            </div>
-        </div>
-        
-        <div class="controls">
-            <input type="url" class="url-input" id="urlInput" 
-                   placeholder="Casino-URL att besöka med Tor Browser" />
-            <button class="go-btn" id="torGuideBtn" onclick="startTorGuide()">
-                📥 Visa Tor Guide
-            </button>
-            <button class="go-btn" onclick="goHome()" style="background: linear-gradient(135deg, #6c757d 0%, #545b62 100%); margin-left: 10px;">
-                🏠 Hem
-            </button>
-        </div>
-        
-        <div class="quick-sites">
-            <div class="quick-site" onclick="setUrl('https://www.torproject.org/download/')">📥 Ladda ner Tor</div>
-            <div class="quick-site" onclick="setUrl('https://check.torproject.org/')">🔍 Tor Status</div>
-            <div class="quick-site" onclick="setUrl('https://whatismyipaddress.com')">📍 IP Check</div>
-            <div class="quick-site" onclick="setUrl('https://www.duckduckgo.com')">🦆 DuckDuckGo</div>
-        </div>
-    </div>
-
-    <div id="welcomeScreen" class="welcome-screen">
-        <div class="welcome-content">
-            <h2>🕶️ Anonym Surf med Tor Browser</h2>
-            <p>Ladda ner och konfigurera Tor Browser för maximal anonymitet vid casino-surfning. Tor ger äkta anonymitet genom att dirigera din trafik via krypterade noder.</p>
-            
-            <div class="casino-examples">
-                <div class="casino-btn" onclick="startTorGuide()">📥 Visa Tor Browser Guide</div>
-                <div class="casino-btn" onclick="setUrl('https://stake.com')">🚀 Stake</div>
-                <div class="casino-btn" onclick="setUrl('https://roobet.com')">🎯 Roobet</div>
-                <div class="casino-btn" onclick="setUrl('https://bc.game')">🎮 BC.Game</div>
-                <div class="casino-btn" onclick="setUrl('https://duelbits.com')">⚔️ Duelbits</div>
-                <div class="casino-btn" onclick="setUrl('https://bitcasino.io')">₿ Bitcasino</div>
-                <div class="casino-btn" onclick="setUrl('https://fortunejack.com')">🍀 FortuneJack</div>
-                <div class="casino-btn" onclick="setUrl('https://mbitcasino.com')">💎 mBit Casino</div>
-                <div class="casino-btn" onclick="setUrl('https://cloudbet.com')">☁️ Cloudbet</div>
-                <div class="casino-btn" onclick="setUrl('https://bitstarz.com')">⭐ BitStarz</div>
-                <div class="casino-btn" onclick="setUrl('https://crypto.games')">🎲 Crypto.Games</div>
+            <div class="header-nav">
+                <a href="#" class="nav-btn" onclick="window.close()">🏠 Hem</a>
+                <a href="#" class="nav-btn" onclick="scrollToStep(1)">📥 Ladda ner</a>
+                <a href="#" class="nav-btn" onclick="scrollToStep(2)">⚙️ Konfigurera</a>
+                <a href="#" class="nav-btn" onclick="scrollToStep(3)">🎰 Casinon</a>
             </div>
         </div>
     </div>
 
-    <div id="welcomeScreen" class="welcome-screen">
-        <div class="welcome-content">
-            <h2>🧅 Anonym Surf med Tor Browser</h2>
-            <p>Ladda ner och konfigurera Tor Browser för maximal anonymitet vid casino-surfning. Tor ger äkta anonymitet genom att dirigera din trafik via krypterade noder.</p>
-            
-            <div class="casino-examples">
-                <div class="casino-btn" onclick="startTorGuide()">📥 Visa Tor Browser Guide</div>
-                <div class="casino-btn" onclick="setUrl('https://stake.com')">🚀 Stake</div>
-                <div class="casino-btn" onclick="setUrl('https://roobet.com')">🎯 Roobet</div>
-                <div class="casino-btn" onclick="setUrl('https://bc.game')">🎮 BC.Game</div>
-                <div class="casino-btn" onclick="setUrl('https://duelbits.com')">⚔️ Duelbits</div>
-                <div class="casino-btn" onclick="setUrl('https://bitcasino.io')">₿ Bitcasino</div>
-                <div class="casino-btn" onclick="setUrl('https://fortunejack.com')">🍀 FortuneJack</div>
-                <div class="casino-btn" onclick="setUrl('https://mbitcasino.com')">💎 mBit Casino</div>
-                <div class="casino-btn" onclick="setUrl('https://cloudbet.com')">☁️ Cloudbet</div>
-                <div class="casino-btn" onclick="setUrl('https://bitstarz.com')">⭐ BitStarz</div>
-                <div class="casino-btn" onclick="setUrl('https://crypto.games')">🎲 Crypto.Games</div>
+    <div class="container">
+        <div class="guide-panel">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
             </div>
+
+            <div class="guide-step" id="step1">
+                <div class="step-number">1</div>
+                <div class="step-title">📥 Ladda ner Tor Browser</div>
+                <div class="step-content">
+                    <p>Tor Browser finns tillgänglig för alla operativsystem. Ladda ner från den officiella sajten som visas till höger.</p>
+                    
+                    <div class="info-box">
+                        <strong>💡 Tips:</strong> Välj rätt version för ditt operativsystem:
+                        <ul style="margin: 10px 0 0 20px;">
+                            <li>Windows: tor-browser-windows-*.exe</li>
+                            <li>macOS: tor-browser-macos-*.dmg</li>
+                            <li>Linux: tor-browser-linux64-*.tar.xz</li>
+                        </ul>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Viktigt:</strong> Ladda ENDAST ner från torproject.org för att undvika skadlig programvara!
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-step" id="step2">
+                <div class="step-number">2</div>
+                <div class="step-title">🛠️ Installation & Första start</div>
+                <div class="step-content">
+                    <p>Efter nedladdning, installera och starta Tor Browser:</p>
+
+                    <div class="code-block">
+                        Windows: Dubbelklicka på .exe filen<br>
+                        macOS: Dra till Applications mappen<br>
+                        Linux: Extrahera och kör ./start-tor-browser.desktop
+                    </div>
+
+                    <p>Vid första start får du välja anslutningsinställningar.</p>
+
+                    <div class="success-box">
+                        <strong>✅ Rekommendation:</strong> För casino-surfning, välj "Configure connection" för att aktivera broar.
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-step" id="step3">
+                <div class="step-number">3</div>
+                <div class="step-title">🌉 Konfigurera Broar (Bridges)</div>
+                <div class="step-content">
+                    <p>Broar gör din Tor-användning mindre detekterbar:</p>
+
+                    <div class="info-box">
+                        <strong>📋 Steg-för-steg:</strong>
+                        <ol style="margin: 10px 0 0 20px;">
+                            <li>Öppna Tor Browser inställningar</li>
+                            <li>Gå till "Connection" → "Bridges"</li>
+                            <li>Aktivera "Use a bridge"</li>
+                            <li>Välj "meek-azure" från listan</li>
+                            <li>Klicka "Connect"</li>
+                        </ol>
+                    </div>
+
+                    <div class="code-block">
+                        ✅ Använd broar: <strong style="color: #27ae60;">Aktiverad</strong><br>
+                        🔧 Bro-typ: <strong style="color: #f39c12;">meek-azure</strong><br>
+                        🌐 Status: <strong style="color: #27ae60;">Ansluten</strong>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>🎯 För casinon:</strong> meek-azure fungerar bäst med gaming-sajter och är svårast att blockera.
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-step" id="step4">
+                <div class="step-number">4</div>
+                <div class="step-title">🔒 Säkerhetsinställningar</div>
+                <div class="step-content">
+                    <p>Optimala inställningar för anonym casino-surfning:</p>
+
+                    <div class="info-box">
+                        <strong>🛡️ Säkerhetsnivå:</strong> Standard (rekommenderad för casinon)
+                        <br><br>
+                        <strong>🔄 Automatisk anslutning:</strong> Aktivera för smidigare användning
+                        <br><br>
+                        <strong>🚫 JavaScript:</strong> Låt vara aktiverat (casinon kräver det)
+                    </div>
+
+                    <div class="success-box">
+                        <strong>✅ Färdig konfiguration:</strong>
+                        <ul style="margin: 10px 0 0 20px;">
+                            <li>Tor-nätverk: Ansluten via meek-azure</li>
+                            <li>IP-adress: Anonymiserad och roterad</li>
+                            <li>Säkerhet: Optimerad för gaming</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-step" id="step5">
+                <div class="step-number">5</div>
+                <div class="step-title">🎰 Crypto Casino Surfning</div>
+                <div class="step-content">
+                    <p>Nu kan du surfa anonymt till crypto-casinon! Klicka på länkarna för att kopiera:</p>
+
+                    <div class="casino-list">
+                        <a href="#" class="casino-link" onclick="copyToClipboard('https://stake.com')">🚀 Stake</a>
+                        <a href="#" class="casino-link" onclick="copyToClipboard('https://roobet.com')">🎯 Roobet</a>
+                        <a href="#" class="casino-link" onclick="copyToClipboard('https://bc.game')">🎮 BC.Game</a>
+                        <a href="#" class="casino-link" onclick="copyToClipboard('https://duelbits.com')">⚔️ Duelbits</a>
+                        <a href="#" class="casino-link" onclick="copyToClipboard('https://bitcasino.io')">₿ Bitcasino</a>
+                        <a href="#" class="casino-link" onclick="copyToClipboard('https://fortunejack.com')">🍀 FortuneJack</a>
+                        <a href="#" class="casino-link" onclick="copyToClipboard('https://mbitcasino.com')">💎 mBit</a>
+                        <a href="#" class="casino-link" onclick="copyToClipboard('https://cloudbet.com')">☁️ Cloudbet</a>
+                        <a href="#" class="casino-link" onclick="copyToClipboard('https://bitstarz.com')">⭐ BitStarz</a>
+                        <a href="#" class="casino-link" onclick="copyToClipboard('https://crypto.games')">🎲 Crypto.Games</a>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>🔐 Säkerhetstips:</strong>
+                        <ul style="margin: 10px 0 0 20px;">
+                            <li>Använd endast HTTPS-sajter</li>
+                            <li>Stäng aldrig Tor under spelsessioner</li>
+                            <li>Rensa cookies efter varje session</li>
+                            <li>Använd unika lösenord för varje casino</li>
+                        </ul>
+                    </div>
+
+                    <div class="success-box">
+                        <strong>✅ Fördelar med Tor:</strong> Äkta anonymitet, roterade IP-adresser, säker kryptering, fungerar med alla casinon!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="download-frame">
+            <iframe src="https://www.torproject.org/download/" class="tor-iframe" id="torIframe"></iframe>
         </div>
     </div>
 
-    <div id="torInstructions" style="display: none; padding: 20px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); margin: 20px; border-radius: 20px; max-height: calc(100vh - 160px); overflow-y: auto;">
-        <h2 style="color: #333; margin-bottom: 20px;">🧅 Tor Browser Setup Guide för Anonym Casino-surfning</h2>
-        
-        <div style="background: #e8f4f8; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #17a2b8;">
-            <h3 style="color: #0c5460; margin-bottom: 10px;">📝 Vad du behöver göra:</h3>
-            <ol style="color: #0c5460; margin-left: 20px;">
-                <li>Ladda ner Tor Browser från officiella sajten</li>
-                <li>Konfigurera broar för extra säkerhet</li>
-                <li>Ställ in automatisk anslutning</li>
-                <li>Surfa anonymt till crypto-casinon</li>
-            </ol>
-        </div>
-
-        <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
-            <h3 style="color: #856404; margin-bottom: 10px;">⚠️ Viktiga säkerhetstips:</h3>
-            <ul style="color: #856404; margin-left: 20px;">
-                <li>Använd alltid broar (bridges) för extra anonymitet</li>
-                <li>Välj "meek-azure" för bästa kompatibilitet</li>
-                <li>Stäng aldrig Tor Browser mellan casino-sessioner</li>
-                <li>Använd endast HTTPS-sajter för casino-spel</li>
-            </ul>
-        </div>
-
-        <div style="background: #d1ecf1; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #17a2b8;">
-            <h3 style="color: #0c5460; margin-bottom: 15px;">🔧 Steg 1: Konfigurera Broar</h3>
-            <p style="color: #0c5460; margin-bottom: 10px;">I Tor Browser-inställningar, aktivera "Använd broar" och välj "meek-azure":</p>
-            <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #dee2e6;">
-                <p style="font-family: monospace; font-size: 12px; color: #495057;">
-                    ✅ Använd broar: <strong>Aktiverad</strong><br>
-                    🔧 Bro-typ: <strong>meek-azure</strong><br>
-                    🔄 Byt ut broar: <strong>Tillgänglig vid behov</strong>
-                </p>
-            </div>
-        </div>
-
-        <div style="background: #d4edda; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #28a745;">
-            <h3 style="color: #155724; margin-bottom: 15px;">⚙️ Steg 2: Anslutningsinställningar</h3>
-            <p style="color: #155724; margin-bottom: 10px;">Kontrollera att anslutningen fungerar korrekt:</p>
-            <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #dee2e6;">
-                <p style="font-family: monospace; font-size: 12px; color: #495057;">
-                    🌐 Internet: <strong style="color: #28a745;">Uppkopplad</strong><br>
-                    🧅 Tor-nätverk: <strong style="color: #28a745;">Ansluten</strong><br>
-                    🔄 Anslut automatiskt: <strong style="color: #17a2b8;">Aktiverad</strong>
-                </p>
-            </div>
-        </div>
-
-        <div style="background: #f8d7da; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
-            <h3 style="color: #721c24; margin-bottom: 15px;">🎰 Steg 3: Casino-surfning</h3>
-            <p style="color: #721c24; margin-bottom: 10px;">När Tor Browser är konfigurerat:</p>
-            <ul style="color: #721c24; margin-left: 20px;">
-                <li>Kopiera casino-URL från listan ovan</li>
-                <li>Klistra in i Tor Browser</li>
-                <li>Din IP-adress är nu anonymiserad</li>
-                <li>Kom ihåg att alltid använda broar</li>
-            </ul>
-        </div>
-
-        <div style="text-align: center; margin-top: 30px;">
-            <button onclick="goHome()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 16px; cursor: pointer; margin-right: 10px;">
-                🏠 Tillbaka till start
-            </button>
-            <button onclick="copyToClipboard(document.getElementById('urlInput').value || 'https://stake.com')" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 16px; cursor: pointer;">
-                📋 Kopiera Casino-URL
-            </button>
-        </div>
+    <div class="floating-help" onclick="showHelp()" title="Hjälp och support">
+        💡
     </div>
-
-    <iframe id="contentFrame" class="content-frame" style="display: none;"></iframe>
-
-    <div id="statusBar" class="status-bar" style="display: none;"></div>
 
     <script>
-        // Global variables
-        let currentIP = null;
-        let currentCountry = null;
+        // Progress tracking
+        let currentStep = 1;
+        const totalSteps = 5;
 
-        // Initialize page
-        window.onload = async function() {
-            await loadIPInfo();
-            setupEventListeners();
-        };
-
-        // Load user's current IP and location
-        async function loadIPInfo() {
-            try {
-                showStatus('Hämtar IP-information...', 'loading');
-                
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
-                
-                currentIP = data.ip;
-                currentCountry = data.country_name;
-                
-                document.getElementById('ipDisplay').textContent = 
-                    `${data.ip} (${data.country_name})`;
-                document.getElementById('countryFlag').textContent = 
-                    getCountryFlag(data.country_code);
-                
-                showStatus(`IP laddad: ${data.country_name}`, 'success');
-                
-            } catch (error) {
-                console.error('Error loading IP info:', error);
-                document.getElementById('ipDisplay').textContent = 'IP kunde ej laddas';
-                showStatus('Kunde inte ladda IP-information', 'error');
-            }
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
         }
 
-        // Get country flag emoji
-        function getCountryFlag(countryCode) {
-            const flags = {
-                'SE': '🇸🇪', 'NO': '🇳🇴', 'DK': '🇩🇰', 'FI': '🇫🇮',
-                'DE': '🇩🇪', 'UK': '🇬🇧', 'US': '🇺🇸', 'CA': '🇨🇦',
-                'NL': '🇳🇱', 'FR': '🇫🇷', 'IT': '🇮🇹', 'ES': '🇪🇸'
-            };
-            return flags[countryCode] || '🌍';
-        }
-
-        // Setup event listeners
-        function setupEventListeners() {
-            const urlInput = document.getElementById('urlInput');
+        function scrollToStep(stepNumber) {
+            currentStep = stepNumber;
+            updateProgress();
             
-            // Enter key to start Tor guide
-            urlInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    startTorGuide();
-                }
+            const stepElement = document.getElementById(`step${stepNumber}`);
+            stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Highlight current step
+            document.querySelectorAll('.guide-step').forEach(step => {
+                step.style.borderLeftColor = '#e74c3c';
             });
-
-            // Auto-format URL
-            urlInput.addEventListener('blur', function() {
-                let url = this.value.trim();
-                if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
-                    this.value = 'https://' + url;
-                }
-            });
+            stepElement.style.borderLeftColor = '#f39c12';
         }
 
-        // Set URL in input
-        function setUrl(url) {
-            document.getElementById('urlInput').value = url;
-            document.getElementById('urlInput').focus();
-            showStatus(`Casino-URL inställd: ${url}`, 'success');
-        }
-
-        // Start Tor Browser guide
-        function startTorGuide() {
-            const urlInput = document.getElementById('urlInput');
-            const torGuideBtn = document.getElementById('torGuideBtn');
-            
-            // Update button state
-            torGuideBtn.disabled = true;
-            torGuideBtn.textContent = '📥 Laddar guide...';
-            
-            // Hide welcome screen and show instructions
-            document.getElementById('welcomeScreen').style.display = 'none';
-            document.getElementById('torInstructions').style.display = 'block';
-            
-            // Also load Tor download page in iframe
-            const iframe = document.getElementById('contentFrame');
-            iframe.style.display = 'block';
-            iframe.src = 'https://www.torproject.org/download/';
-            
-            showStatus('Tor Browser guide visas - ladda ner från torproject.org', 'success');
-            
-            // Reset button
-            setTimeout(() => {
-                torGuideBtn.disabled = false;
-                torGuideBtn.textContent = '📥 Visa Tor Guide';
-            }, 2000);
-            
-            const targetUrl = urlInput.value.trim() || 'crypto-casino';
-            console.log(`Tor Browser guide startad för: ${targetUrl}`);
-        }
-
-        // Copy text to clipboard
-        async function copyToClipboard(text) {
+        // Copy casino URLs to clipboard
+        async function copyToClipboard(url) {
             try {
-                await navigator.clipboard.writeText(text);
-                showStatus(`Kopierat till urklipp: ${text}`, 'success');
+                await navigator.clipboard.writeText(url);
+                showNotification(`Kopierat: ${url}`, 'success');
             } catch (error) {
                 console.error('Error copying to clipboard:', error);
-                showStatus('Kunde inte kopiera till urklipp', 'error');
+                showNotification('Kunde inte kopiera till urklipp', 'error');
             }
         }
 
-        // Show status message
-        function showStatus(message, type = 'info') {
-            const statusBar = document.getElementById('statusBar');
-            statusBar.textContent = message;
-            statusBar.className = `status-bar ${type}`;
-            statusBar.style.display = 'block';
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#27ae60' : '#e74c3c'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
             
-            // Auto-hide after 3 seconds
             setTimeout(() => {
-                statusBar.style.display = 'none';
+                notification.remove();
             }, 3000);
         }
 
-        // Go back to welcome screen
-        function goHome() {
-            document.getElementById('welcomeScreen').style.display = 'flex';
-            document.getElementById('torInstructions').style.display = 'none';
-            document.getElementById('contentFrame').style.display = 'none';
-            document.getElementById('urlInput').value = '';
-            showStatus('Tillbaka till startsidan', 'success');
+        // Help function
+        function showHelp() {
+            showNotification('💡 Följ stegen i ordning: 1. Ladda ner → 2. Installera → 3. Konfigurera broar → 4. Säkerhet → 5. Surfa!', 'info');
         }
 
-        // Refresh IP (reload current IP info)
-        async function refreshIP() {
-            await loadIPInfo();
-        }
+        // Auto-scroll observer for progress
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const stepNum = parseInt(entry.target.id.replace('step', ''));
+                    if (stepNum && stepNum !== currentStep) {
+                        currentStep = stepNum;
+                        updateProgress();
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
 
-        console.log('🧅 Tor Browser Guide - Mailboxes Live laddad!');
-        console.log('Guide för anonym casino-surfning via Tor Browser');
+        // Observe all steps
+        document.querySelectorAll('.guide-step').forEach(step => {
+            observer.observe(step);
+        });
+
+        // Initialize
+        updateProgress();
+
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        console.log('🧅 Tor Browser Installationsguide laddad!');
+        console.log('Guide för anonym crypto-casino surfning');
     </script>
 </body>
 </html>
