@@ -815,6 +815,20 @@
             return Array.from(array, byte => charset[byte % charset.length]).join('');
         }
 
+        // Konvertera svenska tecken till säkra varianter
+        function safeSwedishEmail(text) {
+            return text
+                .toLowerCase()
+                .replace(/å/g, 'a')
+                .replace(/ä/g, 'a') 
+                .replace(/ö/g, 'o')
+                .replace(/é/g, 'e')
+                .replace(/ü/g, 'u')
+                .replace(/[^a-z0-9\-\.]/g, '') // Ta bort alla andra icke-alfanumeriska tecken utom - och .
+                .replace(/\-+/g, '-') // Ersätt flera bindestreck med ett
+                .replace(/^-|-$/g, ''); // Ta bort bindestreck i början/slutet
+        }
+
         // Generate svenska email address
         function genereraSvenskEmail() {
             const randomInt = (max) => Math.floor(Math.random() * max);
@@ -869,7 +883,7 @@
             
             // Välj random stil
             const vald_stil = randomChoice(stilar);
-            return vald_stil();
+            return safeSwedishEmail(vald_stil());
         }
 
         // Generate random email address
