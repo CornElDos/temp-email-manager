@@ -270,9 +270,11 @@
                 <select class="proxy-selector" id="proxySelector">
                     <option value="auto">🎲 Random Proxy</option>
                     <option value="croxyproxy">🔒 CroxyProxy</option>
-                    <option value="hideme">🛡️ Hide.me</option>
-                    <option value="proxysite">🌐 ProxySheet</option>
                     <option value="kproxy">⚡ KProxy</option>
+                    <option value="filterbypass">🌐 FilterBypass</option>
+                    <option value="anonymouse">🕶️ Anonymouse</option>
+                    <option value="hideme">🛡️ Hide.me (Manual)</option>
+                    <option value="proxysite">📄 ProxySheet (Manual)</option>
                 </select>
             </div>
         </div>
@@ -323,32 +325,38 @@
             croxyproxy: {
                 name: 'CroxyProxy',
                 url: 'https://www.croxyproxy.com/go#url=',
+                type: 'hash',
                 description: 'Stöder JavaScript & cookies - bäst för casinon'
             },
             hideme: {
                 name: 'Hide.me',
-                url: 'https://hide.me/en/proxy/',
+                url: 'https://hide.me/en/proxy',
+                type: 'form',
                 description: 'EU-servrar, bra för svenska casinon'
             },
             proxysite: {
                 name: 'ProxySheet',
-                url: 'https://www.proxysite.com/go/',
+                url: 'https://www.proxysite.com',
+                type: 'form',
                 description: 'Olika länders IP-adresser'
             },
             kproxy: {
                 name: 'KProxy',
                 url: 'https://kproxy.com/servlet/redirect.srv/s/',
+                type: 'direct',
                 description: 'Stabil för gaming-sidor'
             },
             filterbypass: {
                 name: 'FilterBypass',
                 url: 'https://www.filterbypass.me/index.php?q=',
+                type: 'query',
                 description: 'Backup proxy'
             },
-            plainproxies: {
-                name: 'PlainProxies',
-                url: 'https://plainproxies.com/resources/free-web-proxy/',
-                description: 'Enkel och snabb'
+            anonymouse: {
+                name: 'Anonymouse',
+                url: 'https://anonymouse.org/cgi-bin/anon-www.cgi/',
+                type: 'direct',
+                description: 'Klassisk proxy-tjänst'
             }
         };
 
@@ -446,15 +454,27 @@
         function buildProxyUrl(targetUrl, proxyService) {
             const timestamp = Date.now();
             
-            // Special handling for different proxy services
-            switch (proxyService.name) {
-                case 'Hide.me':
+            switch (proxyService.type) {
+                case 'hash':
+                    // CroxyProxy style: url#target
                     return `${proxyService.url}${encodeURIComponent(targetUrl)}`;
-                case 'FilterBypass':
-                case 'PlainProxies':
+                    
+                case 'query':
+                    // FilterBypass style: ?q=target
                     return `${proxyService.url}${encodeURIComponent(targetUrl)}`;
+                    
+                case 'direct':
+                    // KProxy/Anonymouse style: direct append
+                    return `${proxyService.url}${encodeURIComponent(targetUrl)}`;
+                    
+                case 'form':
+                    // För tjänster som kräver form-submission, öppna direkt
+                    // Detta kommer öppna proxy-sajten där användaren manuellt kan ange URL
+                    return proxyService.url;
+                    
                 default:
-                    return `${proxyService.url}${encodeURIComponent(targetUrl)}&t=${timestamp}`;
+                    // Fallback
+                    return `${proxyService.url}${encodeURIComponent(targetUrl)}`;
             }
         }
 
@@ -481,30 +501,45 @@
 
             // Get proxy service
             const proxyService = getSelectedProxy();
-            const proxyUrl = buildProxyUrl(url, proxyService);
             
             // Update UI
             goBtn.disabled = true;
             goBtn.textContent = '🔄 Laddar...';
             
-            showStatus(`Ansluter via ${proxyService.name}...`, 'loading');
-            
             // Hide welcome screen
             document.getElementById('welcomeScreen').style.display = 'none';
-            
-            // Load in iframe
             const iframe = document.getElementById('contentFrame');
             iframe.style.display = 'block';
-            iframe.src = proxyUrl;
+            
+            // Handle different proxy types
+            if (proxyService.type === 'form') {
+                // For form-based proxies, show instructions
+                showStatus(`Öppnar ${proxyService.name} - ange din URL manuellt`, 'loading');
+                iframe.src = proxyService.url;
+                
+                // Show instruction overlay
+                setTimeout(() => {
+                    showStatus(`📋 Ange din URL (${url}) på ${proxyService.name} sidan`, 'info');
+                }, 2000);
+                
+            } else {
+                // For direct proxies, build URL and load
+                const proxyUrl = buildProxyUrl(url, proxyService);
+                showStatus(`Ansluter via ${proxyService.name}...`, 'loading');
+                iframe.src = proxyUrl;
+                
+                setTimeout(() => {
+                    showStatus(`Surfar anonymt via ${proxyService.name}`, 'success');
+                }, 3000);
+            }
             
             // Reset button after delay
             setTimeout(() => {
                 goBtn.disabled = false;
                 goBtn.textContent = '🚀 Go Anonymous';
-                showStatus(`Surfar anonymt via ${proxyService.name}`, 'success');
             }, 3000);
             
-            console.log(`Loading: ${url} via ${proxyService.name}`);
+            console.log(`Loading: ${url} via ${proxyService.name} (${proxyService.type})`);
         }
 
         // Show status message
