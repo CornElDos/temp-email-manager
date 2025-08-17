@@ -932,24 +932,9 @@
             return emailAddress;
         }
 
-        // Start anonymous surfing
         function startAnonSurf() {
-            // Open new tab with frameset (placeholder for now)
-            const newWindow = window.open('about:blank', '_blank');
-            newWindow.document.write(`
-                <html>
-                <head><title>Anonym Surf - Mailboxes Live</title></head>
-                <body style="margin:0; font-family: Arial;">
-                    <div style="background: #667eea; color: white; padding: 20px; text-align: center;">
-                        <h2>🕶️ Anonym Surf - Mailboxes Live</h2>
-                        <p>Frameset kommer här...</p>
-                        <p><small>Utvecklas i nästa version</small></p>
-                    </div>
-                    <iframe src="https://duckduckgo.com" style="width:100%; height:calc(100vh-80px); border:none;"></iframe>
-                </body>
-                </html>
-            `);
-            
+            // Open new tab with proper anon-surf.html
+            window.open('anon-surf.html', '_blank');
             showStatus('Anonym surf startad i ny flik', 'success');
         }
 
