@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temp Email Manager v2</title>
+    <title>Temp Email Manager v3</title>
     <style>
         * {
             margin: 0;
@@ -143,7 +143,7 @@
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             transition: all 0.3s ease;
         }
 
@@ -156,6 +156,44 @@
             background: #ccc;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .manual-email-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        .manual-email-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .manual-email-input::placeholder {
+            color: #999;
+        }
+
+        .anon-surf-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .anon-surf-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(255, 107, 107, 0.3);
         }
 
         .right-panel {
@@ -464,7 +502,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        .delete-btn, .use-btn, .send-test-btn {
+        .delete-btn, .use-btn {
             border: none;
             padding: 8px 12px;
             border-radius: 5px;
@@ -495,15 +533,6 @@
         .use-btn:disabled {
             background: #6c757d;
             cursor: not-allowed;
-        }
-
-        .send-test-btn {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .send-test-btn:hover {
-            background: #138496;
         }
 
         .timestamp {
@@ -570,7 +599,7 @@
     <!-- Login Screen -->
     <div id="loginContainer" class="login-container">
         <div class="login-box">
-            <h2>🔐 Temp Email Manager v2</h2>
+            <h2>🔐 Temp Email Manager v3</h2>
             <input type="text" id="username" placeholder="Användarnamn" />
             <input type="password" id="password" placeholder="Lösenord" />
             <button onclick="login()">Logga in</button>
@@ -582,9 +611,9 @@
     <div id="mainContainer" class="main-container">
         <div class="header">
             <div>
-                <h1>📧 Temp Email Manager v2</h1>
+                <h1>📧 Temp Email Manager v3</h1>
                 <p style="font-size: 12px; color: #666; margin: 5px 0;">
-                    <span style="color: #28a745;">✅ Med Mail-Lista & Modal-Visning!</span>
+                    <span style="color: #28a745;">✅ Svenska Email-Adresser & Anonym Surf!</span>
                 </p>
             </div>
             <div class="header-controls">
@@ -599,6 +628,14 @@
             <div class="left-panel">
                 <button class="create-email-btn" onclick="createEmail()" id="createBtn">
                     ✉️ Skapa Email
+                </button>
+                
+                <input type="text" class="manual-email-input" id="manualEmail" 
+                       placeholder="Ange egen email (utan @mailboxes.live)" 
+                       maxlength="50">
+                
+                <button class="anon-surf-btn" onclick="startAnonSurf()">
+                    🕶️ Starta Anonym Surf
                 </button>
                 
                 <div style="margin-bottom: 20px;">
@@ -618,12 +655,12 @@
                 </div>
 
                 <div style="margin-top: 20px; padding: 15px; background: #d1ecf1; border-radius: 10px; border-left: 4px solid #0ea5e9;">
-                    <h4>🚀 Ny Features v2</h4>
+                    <h4>🚀 Ny Features v3</h4>
                     <p style="font-size: 12px; margin: 5px 0;">
-                        ✅ Mail-lista med ikoner<br>
-                        ✅ Modal för fullständig visning<br>
-                        ✅ Smart verifieringskod-detektion<br>
-                        ✅ Verifieringslänk-hantering
+                        ✅ Svenska email-adresser<br>
+                        ✅ Manuell email-input<br>
+                        ✅ Anonym surf funktion<br>
+                        ✅ Smart kollisions-hantering
                     </p>
                 </div>
             </div>
@@ -699,6 +736,77 @@
             startAutoRefresh();
         }
 
+        // Svenska email-generering
+        const svenskaFornamn = [
+            'anders', 'anna', 'erik', 'emma', 'lars', 'maria', 'johan', 'sara', 
+            'mikael', 'lina', 'daniel', 'kajsa', 'peter', 'elin', 'thomas', 'ida',
+            'mattias', 'jenny', 'andreas', 'sofia', 'martin', 'helena', 'jonas', 'lisa',
+            'stefan', 'marie', 'david', 'susanne', 'patrik', 'camilla', 'fredrik', 'linda',
+            'magnus', 'margareta', 'christian', 'ingrid', 'robert', 'gunilla', 'kent', 'birgitta',
+            'nils', 'astrid', 'sven', 'agneta', 'ulf', 'barbro', 'rolf', 'karin',
+            'gunnar', 'inger', 'bengt', 'ulla', 'bo', 'britt', 'ake', 'maj',
+            'leif', 'ann', 'goran', 'annika', 'karl', 'eva', 'per', 'elisabet',
+            'axel', 'bella', 'carl', 'clara', 'dennis', 'diana', 'edvin', 'ebba',
+            'felix', 'freja', 'gustav', 'greta', 'hugo', 'hanna', 'isak', 'iris',
+            'jacob', 'julia', 'kasper', 'klara', 'ludvig', 'lovisa', 'marcus', 'maja',
+            'noah', 'nova', 'oliver', 'olivia', 'philip', 'petra', 'rasmus', 'rebecca',
+            'samuel', 'stella', 'theodor', 'tilda', 'viktor', 'vera', 'wilhelm', 'wilma',
+            'alexander', 'alexandra', 'benjamin', 'beatrice', 'christopher', 'caroline',
+            'emanuel', 'emilia', 'gabriel', 'gabriella', 'isidor', 'isabella', 'jonathan',
+            'josephine', 'kristoffer', 'kristina', 'maximilian', 'matilda', 'nathanael',
+            'natalie', 'sebastian', 'sabina', 'valdemar', 'valentina', 'zacharias', 'zara',
+            'adolf', 'agda', 'albert', 'alma', 'arthur', 'astria', 'bertil', 'berit',
+            'conny', 'carin', 'einar', 'ester', 'folke', 'flora', 'george', 'gudrun',
+            'harry', 'hilma', 'ivan', 'irma', 'jarl', 'jenny', 'kjell', 'kerstin',
+            'lasse', 'lisbeth', 'morgan', 'monica', 'nisse', 'nina', 'olle', 'olga',
+            'ragnar', 'rut', 'sixten', 'sigrid', 'torsten', 'tyra', 'urban', 'ulla',
+            'valter', 'viola', 'yngve', 'yvonne', 'sture', 'solveig', 'rune', 'ragnhild'
+        ];
+
+        const svenskaEfternamn = [
+            'andersson', 'johansson', 'karlsson', 'nilsson', 'eriksson', 'larsson',
+            'olsson', 'persson', 'svensson', 'gustafsson', 'pettersson', 'jonsson',
+            'jansson', 'hansson', 'bengtsson', 'jönsson', 'lindberg', 'jakobsson',
+            'magnusson', 'olofsson', 'lindström', 'lindqvist', 'lindgren', 'berg',
+            'axelsson', 'hellström', 'vikström', 'söderberg', 'mattsson', 'forsberg',
+            'lundberg', 'sjöberg', 'wallin', 'holm', 'samuelsson', 'fransson',
+            'johnsson', 'danielsson', 'eklund', 'lundin', 'hägg', 'björk',
+            'bergström', 'sandberg', 'lund', 'norberg', 'ström', 'åberg',
+            'blomberg', 'blomqvist', 'carlsson', 'dahlberg', 'engström', 'falk',
+            'green', 'hedström', 'isaksson', 'jeppsson', 'krantz', 'lindahl',
+            'månsson', 'nyberg', 'oscarsson', 'palm', 'qvist', 'rask',
+            'stark', 'törnqvist', 'uddén', 'viklund', 'wikström', 'åkesson',
+            'öberg', 'öhman', 'blom', 'dahl', 'ek', 'fall', 'gran', 'hall',
+            'kask', 'mark', 'nyström', 'ros', 'sahl', 'vall', 'wall', 'åhl',
+            'bäck', 'grön', 'höök', 'käll', 'löf', 'rök', 'skog', 'väg',
+            'hagström', 'holmberg', 'ivarsson', 'jonasson', 'kristensson', 'liedberg',
+            'mohlin', 'nordström', 'palmberg', 'rydberg', 'stenberg', 'törnberg',
+            'westerberg', 'östberg', 'ahlström', 'bjelke', 'cronqvist', 'dalberg',
+            'edberg', 'franzen', 'granlund', 'hedberg', 'israelsson', 'jacobsson',
+            'kjellberg', 'lindfors', 'molander', 'nordberg', 'palmqvist', 'ryding'
+        ];
+
+        const svenskaOrd = [
+            'tant', 'farbror', 'mormor', 'morfar', 'farmor', 'farfar', 'faster', 'moster',
+            'kotte', 'björn', 'älg', 'ren', 'varg', 'räv', 'hare', 'igelkott', 'grävling',
+            'ekorre', 'hjort', 'vildsvin', 'lodjur', 'järv', 'utter', 'mård', 'hermelin',
+            'fika', 'bullar', 'kött', 'potatis', 'lingon', 'blåbär', 'hjortron', 'cloudberry',
+            'kanelbulle', 'pepparkakor', 'prinsesstårta', 'semla', 'surströmming', 'köttbullar',
+            'skog', 'sjö', 'strand', 'berg', 'dal', 'äng', 'myr', 'ås', 'kulle', 'klippa',
+            'bäck', 'å', 'hav', 'vik', 'udde', 'holme', 'ö', 'skär', 'grund', 'rev',
+            'snö', 'is', 'sol', 'regn', 'vind', 'dimma', 'frost', 'hagel', 'åska', 'blixt',
+            'kyla', 'värme', 'storm', 'moln', 'stjärna', 'måne', 'norrsken', 'midnattssol',
+            'växjö', 'malmö', 'göteborg', 'stockholm', 'uppsala', 'västerås', 'örebro', 'linköping',
+            'helsingborg', 'jönköping', 'norrköping', 'lund', 'umeå', 'gävle', 'borås', 'eskilstuna',
+            'dalahäst', 'viking', 'skål', 'lagom', 'hygge', 'jantelagen', 'allemansrätt',
+            'midsommar', 'lucia', 'valborg', 'kräftskiva', 'surströmming', 'glögg',
+            'björk', 'gran', 'tall', 'ek', 'asp', 'lönn', 'lind', 'rönn', 'hägg', 'syrén',
+            'påsk', 'jul', 'nyår', 'pingst', 'kräftor', 'sill', 'akvavit', 'punsch',
+            'troll', 'tomte', 'nisse', 'älva', 'vätte', 'skogsrå', 'näcken', 'bäckahäst',
+            'smörgås', 'macka', 'smörre', 'tunnbröd', 'knäckebröd', 'limpa', 'kavring',
+            'ost', 'mjölk', 'grädde', 'filmjölk', 'yoghurt', 'kefir', 'visp', 'kärnmjölk'
+        ];
+
         // Generate secure password
         function generateSecurePassword(length = 12) {
             const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
@@ -707,14 +815,128 @@
             return Array.from(array, byte => charset[byte % charset.length]).join('');
         }
 
+        // Generate svenska email address
+        function genereraSvenskEmail() {
+            const randomInt = (max) => Math.floor(Math.random() * max);
+            const randomChoice = (arr) => arr[randomInt(arr.length)];
+            
+            // Random siffror i slutet (ibland inga, ibland 1-3 siffror)
+            const getSuffixNumbers = () => {
+                const chans = Math.random();
+                if (chans < 0.3) return ''; // 30% chans för inga siffror
+                if (chans < 0.6) return randomInt(100); // 30% chans för 1-2 siffror
+                return randomInt(1000); // 40% chans för 1-3 siffror
+            };
+            
+            // Olika stilar av email-adresser
+            const stilar = [
+                // Förnamn.Efternamn + random siffror
+                () => `${randomChoice(svenskaFornamn)}.${randomChoice(svenskaEfternamn)}${getSuffixNumbers()}`,
+                
+                // Förnamn + random siffror
+                () => `${randomChoice(svenskaFornamn)}${getSuffixNumbers()}`,
+                
+                // Efternamn + random siffror  
+                () => `${randomChoice(svenskaEfternamn)}${getSuffixNumbers()}`,
+                
+                // Svenska ord + random siffror
+                () => `${randomChoice(svenskaOrd)}${getSuffixNumbers()}`,
+                
+                // Två svenska ord + random siffror
+                () => `${randomChoice(svenskaOrd)}-${randomChoice(svenskaOrd)}${getSuffixNumbers()}`,
+                
+                // Förnamn + svenska ord + random siffror
+                () => `${randomChoice(svenskaFornamn)}-${randomChoice(svenskaOrd)}${getSuffixNumbers()}`,
+                
+                // Efternamn + svenska ord + random siffror
+                () => `${randomChoice(svenskaEfternamn)}-${randomChoice(svenskaOrd)}${getSuffixNumbers()}`,
+                
+                // Svenska ord + förnamn + random siffror
+                () => `${randomChoice(svenskaOrd)}-${randomChoice(svenskaFornamn)}${getSuffixNumbers()}`,
+                
+                // Klassiska svenska kombinationer + random siffror
+                () => {
+                    const klassiska = [
+                        'tant-agda', 'farbror-sven', 'mormor-astrid', 'morfar-nils',
+                        'kalle-anka', 'pippi-långstrump', 'emil-lönneberga', 'astrid-lindgren',
+                        'björn-borg', 'zlatan-ibra', 'greta-garbo', 'ingmar-bergman',
+                        'tant-brun', 'farbror-blå', 'faster-rosa', 'moster-gul',
+                        'morfar-gunnar', 'farmor-maja', 'mormor-greta', 'farfar-arne'
+                    ];
+                    return `${randomChoice(klassiska)}${getSuffixNumbers()}`;
+                }
+            ];
+            
+            // Välj random stil
+            const vald_stil = randomChoice(stilar);
+            return vald_stil();
+        }
+
         // Generate random email address
         function generateRandomEmail() {
-            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
-            for (let i = 0; i < 8; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            // Check if manual email is provided
+            const manualEmail = document.getElementById('manualEmail').value.trim();
+            
+            if (manualEmail) {
+                // Use manual email
+                return manualEmail + '@mailboxes.live';
+            } else {
+                // Use svenska generator
+                return genereraSvenskEmail() + '@mailboxes.live';
             }
-            return result + '@mailboxes.live';
+        }
+
+        // Check if email exists in database
+        function emailExists(emailAddress) {
+            return emails.some(email => email.email === emailAddress);
+        }
+
+        // Generate unique email address
+        function generateUniqueEmail() {
+            let emailAddress = generateRandomEmail();
+            let attempts = 0;
+            const maxAttempts = 10;
+            
+            // If email exists, add random number and try again
+            while (emailExists(emailAddress) && attempts < maxAttempts) {
+                const manualEmail = document.getElementById('manualEmail').value.trim();
+                const randomNum = Math.floor(Math.random() * 1000);
+                
+                if (manualEmail) {
+                    emailAddress = manualEmail + randomNum + '@mailboxes.live';
+                } else {
+                    const baseEmail = genereraSvenskEmail();
+                    emailAddress = baseEmail + randomNum + '@mailboxes.live';
+                }
+                attempts++;
+            }
+            
+            if (attempts >= maxAttempts) {
+                throw new Error('Kunde inte generera unik email-adress efter flera försök');
+            }
+            
+            return emailAddress;
+        }
+
+        // Start anonymous surfing
+        function startAnonSurf() {
+            // Open new tab with frameset (placeholder for now)
+            const newWindow = window.open('about:blank', '_blank');
+            newWindow.document.write(`
+                <html>
+                <head><title>Anonym Surf - Mailboxes Live</title></head>
+                <body style="margin:0; font-family: Arial;">
+                    <div style="background: #667eea; color: white; padding: 20px; text-align: center;">
+                        <h2>🕶️ Anonym Surf - Mailboxes Live</h2>
+                        <p>Frameset kommer här...</p>
+                        <p><small>Utvecklas i nästa version</small></p>
+                    </div>
+                    <iframe src="https://duckduckgo.com" style="width:100%; height:calc(100vh-80px); border:none;"></iframe>
+                </body>
+                </html>
+            `);
+            
+            showStatus('Anonym surf startad i ny flik', 'success');
         }
 
         // Show status message
@@ -853,38 +1075,16 @@
             }
         }
 
-        // Send verification mail to new email
-        async function sendTestMail(email) {
-            try {
-                console.log('Sending verification mail to:', email);
-                
-                const result = await callNetlifyFunction('send-email', { 
-                    email: email,
-                    type: 'gaming' // Use gaming template for gambling sites
-                });
-
-                if (result.success) {
-                    console.log('Verification mail sent successfully:', result.messageId);
-                    showStatus(`📧 Verifieringsmail skickat till ${email}`, 'success');
-                    return true;
-                } else {
-                    throw new Error(result.error || 'Unknown error');
-                }
-            } catch (error) {
-                console.error('Error sending verification mail:', error);
-                showStatus(`❌ Fel vid sändning av mail till ${email}: ${error.message}`, 'error');
-                return false;
-            }
-        }
-
         // Create new email
         async function createEmail() {
             const createBtn = document.getElementById('createBtn');
+            const manualEmailInput = document.getElementById('manualEmail');
+            
             createBtn.disabled = true;
             createBtn.textContent = '⏳ Skapar...';
 
             try {
-                const email = generateRandomEmail();
+                const email = generateUniqueEmail();
                 const password = generateSecurePassword();
                 const timestamp = new Date().toLocaleString('sv-SE');
 
@@ -909,9 +1109,9 @@
                 updateStats();
 
                 showStatus(`Email skapad: ${email}`, 'success');
-
-                // Send test mail (optional)
-                //await sendTestMail(email);
+                
+                // Clear manual email input after successful creation
+                manualEmailInput.value = '';
 
                 // Find the newly created email and start checking
                 const newEmail = emails.find(e => e.email === email);
@@ -921,7 +1121,7 @@
 
             } catch (error) {
                 console.error('Error creating email:', error);
-                showStatus('Fel vid skapande av email', 'error');
+                showStatus('Fel vid skapande av email: ' + error.message, 'error');
             } finally {
                 createBtn.disabled = false;
                 createBtn.textContent = '✉️ Skapa Email';
@@ -1143,7 +1343,6 @@
                                 ${email.used ? 'disabled' : ''}>
                             ${email.used ? '✓ Använd' : 'Använd'}
                         </button>
-                        <button class="send-test-btn" onclick="sendTestMail('${email.email}')">📨 Skicka</button>
                         <div class="email-address">
                             <span class="status-indicator status-${email.used ? 'used' : email.status}"></span>
                             ${email.email} ${email.used ? '<strong style="color: #6f42c1;">(ANVÄND)</strong>' : ''}
@@ -1251,7 +1450,7 @@
             reader.readAsText(file);
         }
 
-        // Enter key support for login
+        // Enter key support for login and manual email
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && !isLoggedIn) {
                 login();
@@ -1259,11 +1458,14 @@
             if (e.key === 'Escape') {
                 closeModal();
             }
+            if (e.key === 'Enter' && e.target.id === 'manualEmail') {
+                createEmail();
+            }
         });
 
         // Initialize on page load
         updateStats();
-        console.log('Temp Email Manager v2 - Med Mail-Lista laddad!');
+        console.log('Temp Email Manager v3 - Svenska emails & Anonym surf laddad!');
     </script>
 </body>
 </html>
