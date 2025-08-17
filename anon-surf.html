@@ -184,20 +184,32 @@
             
             .controls {
                 width: 100%;
+                flex-wrap: wrap;
             }
             
             .url-input {
                 font-size: 14px;
                 padding: 10px 14px;
+                flex: 1;
+                min-width: 200px;
             }
             
             .go-btn {
                 padding: 10px 16px;
                 font-size: 14px;
+                margin: 5px 2px;
             }
             
             .ip-info {
                 font-size: 12px;
+            }
+            
+            .quick-sites {
+                flex-wrap: wrap;
+            }
+            
+            .quick-site {
+                margin: 2px;
             }
         }
 
@@ -268,13 +280,13 @@
                 <span class="country-flag" id="countryFlag">🌍</span>
                 <span class="ip-display" id="ipDisplay">Laddar IP...</span>
                 <select class="proxy-selector" id="proxySelector">
-                    <option value="auto">🎲 Random Proxy</option>
-                    <option value="croxyproxy">🔒 CroxyProxy</option>
-                    <option value="kproxy">⚡ KProxy</option>
-                    <option value="filterbypass">🌐 FilterBypass</option>
-                    <option value="anonymouse">🕶️ Anonymouse</option>
-                    <option value="hideme">🛡️ Hide.me (Manual)</option>
-                    <option value="proxysite">📄 ProxySheet (Manual)</option>
+                    <option value="auto">🎲 Random Proxy (iframe)</option>
+                    <option value="croxyproxy">🔒 CroxyProxy (iframe)</option>
+                    <option value="filterbypass">🌐 FilterBypass (iframe)</option>
+                    <option value="anonymouse">🕶️ Anonymouse (iframe)</option>
+                    <option value="kproxy">⚡ KProxy (ny flik)</option>
+                    <option value="hideme">🛡️ Hide.me (ny flik)</option>
+                    <option value="proxysite">📄 ProxySheet (ny flik)</option>
                 </select>
             </div>
         </div>
@@ -284,6 +296,9 @@
                    placeholder="Ange webbadress (t.ex. https://casino.com)" />
             <button class="go-btn" id="goBtn" onclick="goAnonymous()">
                 🚀 Go Anonymous
+            </button>
+            <button class="go-btn" onclick="goHome()" style="background: linear-gradient(135deg, #6c757d 0%, #545b62 100%); margin-left: 10px;">
+                🏠 Hem
             </button>
         </div>
         
@@ -326,37 +341,43 @@
                 name: 'CroxyProxy',
                 url: 'https://www.croxyproxy.com/go#url=',
                 type: 'hash',
+                iframe: true,
                 description: 'Stöder JavaScript & cookies - bäst för casinon'
-            },
-            hideme: {
-                name: 'Hide.me',
-                url: 'https://hide.me/en/proxy',
-                type: 'form',
-                description: 'EU-servrar, bra för svenska casinon'
-            },
-            proxysite: {
-                name: 'ProxySheet',
-                url: 'https://www.proxysite.com',
-                type: 'form',
-                description: 'Olika länders IP-adresser'
             },
             kproxy: {
                 name: 'KProxy',
                 url: 'https://kproxy.com/servlet/redirect.srv/s/',
                 type: 'direct',
+                iframe: false, // Ofta blockerar iframe
                 description: 'Stabil för gaming-sidor'
             },
             filterbypass: {
                 name: 'FilterBypass',
                 url: 'https://www.filterbypass.me/index.php?q=',
                 type: 'query',
+                iframe: true,
                 description: 'Backup proxy'
             },
             anonymouse: {
                 name: 'Anonymouse',
                 url: 'https://anonymouse.org/cgi-bin/anon-www.cgi/',
                 type: 'direct',
+                iframe: true,
                 description: 'Klassisk proxy-tjänst'
+            },
+            hideme: {
+                name: 'Hide.me',
+                url: 'https://hide.me/en/proxy',
+                type: 'newtab',
+                iframe: false,
+                description: 'EU-servrar - öppnas i ny flik'
+            },
+            proxysite: {
+                name: 'ProxySheet',
+                url: 'https://www.proxysite.com',
+                type: 'newtab',
+                iframe: false,
+                description: 'Olika länders IP - öppnas i ny flik'
             }
         };
 
@@ -431,10 +452,12 @@
             document.getElementById('urlInput').focus();
         }
 
-        // Get random proxy service
+        // Get random proxy service (only iframe-compatible ones)
         function getRandomProxy() {
-            const serviceKeys = Object.keys(proxyServices);
-            const randomKey = serviceKeys[Math.floor(Math.random() * serviceKeys.length)];
+            const iframeServices = Object.keys(proxyServices).filter(key => 
+                proxyServices[key].iframe === true
+            );
+            const randomKey = iframeServices[Math.floor(Math.random() * iframeServices.length)];
             return proxyServices[randomKey];
         }
 
@@ -452,8 +475,6 @@
 
         // Build proxy URL
         function buildProxyUrl(targetUrl, proxyService) {
-            const timestamp = Date.now();
-            
             switch (proxyService.type) {
                 case 'hash':
                     // CroxyProxy style: url#target
@@ -467,9 +488,9 @@
                     // KProxy/Anonymouse style: direct append
                     return `${proxyService.url}${encodeURIComponent(targetUrl)}`;
                     
-                case 'form':
-                    // För tjänster som kräver form-submission, öppna direkt
-                    // Detta kommer öppna proxy-sajten där användaren manuellt kan ange URL
+                case 'newtab':
+                    // For new tab services, open their main page
+                    // User will manually enter URL there
                     return proxyService.url;
                     
                 default:
@@ -506,40 +527,41 @@
             goBtn.disabled = true;
             goBtn.textContent = '🔄 Laddar...';
             
-            // Hide welcome screen
-            document.getElementById('welcomeScreen').style.display = 'none';
-            const iframe = document.getElementById('contentFrame');
-            iframe.style.display = 'block';
-            
             // Handle different proxy types
-            if (proxyService.type === 'form') {
-                // For form-based proxies, show instructions
-                showStatus(`Öppnar ${proxyService.name} - ange din URL manuellt`, 'loading');
-                iframe.src = proxyService.url;
+            if (proxyService.type === 'newtab' || !proxyService.iframe) {
+                // Open in new tab for services that block iframe
+                const proxyUrl = buildProxyUrl(url, proxyService);
+                window.open(proxyUrl, '_blank');
                 
-                // Show instruction overlay
+                showStatus(`${proxyService.name} öppnad i ny flik`, 'success');
+                
+                // Reset button immediately
                 setTimeout(() => {
-                    showStatus(`📋 Ange din URL (${url}) på ${proxyService.name} sidan`, 'info');
-                }, 2000);
+                    goBtn.disabled = false;
+                    goBtn.textContent = '🚀 Go Anonymous';
+                }, 1000);
                 
             } else {
-                // For direct proxies, build URL and load
+                // Load in iframe for compatible services
                 const proxyUrl = buildProxyUrl(url, proxyService);
+                
+                // Hide welcome screen
+                document.getElementById('welcomeScreen').style.display = 'none';
+                const iframe = document.getElementById('contentFrame');
+                iframe.style.display = 'block';
+                
                 showStatus(`Ansluter via ${proxyService.name}...`, 'loading');
                 iframe.src = proxyUrl;
                 
+                // Reset button after delay
                 setTimeout(() => {
+                    goBtn.disabled = false;
+                    goBtn.textContent = '🚀 Go Anonymous';
                     showStatus(`Surfar anonymt via ${proxyService.name}`, 'success');
                 }, 3000);
             }
             
-            // Reset button after delay
-            setTimeout(() => {
-                goBtn.disabled = false;
-                goBtn.textContent = '🚀 Go Anonymous';
-            }, 3000);
-            
-            console.log(`Loading: ${url} via ${proxyService.name} (${proxyService.type})`);
+            console.log(`Loading: ${url} via ${proxyService.name} (${proxyService.type}, iframe: ${proxyService.iframe})`);
         }
 
         // Show status message
