@@ -432,7 +432,120 @@
         </div>
 
         <div class="download-frame">
-            <iframe src="https://www.torproject.org/download/" class="tor-iframe" id="torIframe"></iframe>
+            <div style="padding: 30px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); height: 100%; overflow-y: auto;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h2 style="color: #f39c12; margin-bottom: 15px;">📥 Ladda ner Tor Browser</h2>
+                    <p style="color: #ecf0f1; font-size: 16px; margin-bottom: 20px;">
+                        Välj rätt version för ditt operativsystem nedan:
+                    </p>
+                    <button onclick="window.open('https://www.torproject.org/download/', '_blank')" 
+                            style="background: #e74c3c; color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 14px; margin-bottom: 30px;">
+                        🌐 Öppna Officiella Nedladdningssidan
+                    </button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <!-- Windows -->
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; border: 2px solid #3498db;">
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <div style="font-size: 48px;">🪟</div>
+                            <h3 style="color: #3498db; margin: 10px 0;">Windows</h3>
+                        </div>
+                        <div style="color: #ecf0f1; font-size: 14px; margin-bottom: 15px;">
+                            <strong>Rekommenderad version:</strong><br>
+                            Tor Browser 13.0.x för Windows
+                        </div>
+                        <button onclick="window.open('https://www.torproject.org/dist/torbrowser/14.5.5/tor-browser-windows-x86_64-portable-14.5.5.exe', '_blank')" 
+                                style="width: 100%; background: #3498db; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                            📥 Ladda ner Windows (64-bit)
+                        </button>
+                    </div>
+
+                    <!-- macOS -->
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; border: 2px solid #95a5a6;">
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <div style="font-size: 48px;">🍎</div>
+                            <h3 style="color: #95a5a6; margin: 10px 0;">macOS</h3>
+                        </div>
+                        <div style="color: #ecf0f1; font-size: 14px; margin-bottom: 15px;">
+                            <strong>Rekommenderad version:</strong><br>
+                            Tor Browser 13.0.x för macOS
+                        </div>
+                        <button onclick="window.open('https://www.torproject.org/dist/torbrowser/14.5.5/tor-browser-macos-14.5.5.dmg', '_blank')" 
+                                style="width: 100%; background: #95a5a6; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                            📥 Ladda ner macOS
+                        </button>
+                    </div>
+
+                    <!-- Linux -->
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; border: 2px solid #f39c12;">
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <div style="font-size: 48px;">🐧</div>
+                            <h3 style="color: #f39c12; margin: 10px 0;">Linux</h3>
+                        </div>
+                        <div style="color: #ecf0f1; font-size: 14px; margin-bottom: 15px;">
+                            <strong>Rekommenderad version:</strong><br>
+                            Tor Browser 13.0.x för Linux
+                        </div>
+                        <button onclick="window.open('https://www.torproject.org/dist/torbrowser/14.5.5/tor-browser-linux-x86_64-14.5.5.tar.xz', '_blank')" 
+                                style="width: 100%; background: #f39c12; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                            📥 Ladda ner Linux (64-bit)
+                        </button>
+                    </div>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.2); border: 1px solid #e74c3c; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                    <h4 style="color: #e74c3c; margin-bottom: 10px;">⚠️ Säkerhetsvarning</h4>
+                    <ul style="color: #ecf0f1; margin-left: 20px; line-height: 1.6;">
+                        <li>Ladda ENDAST ner från torproject.org</li>
+                        <li>Verifiera checksumman efter nedladdning</li>
+                        <li>Använd aldrig Tor från andra källor</li>
+                        <li>Uppdatera regelbundet för säkerhetspatchar</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(39, 174, 96, 0.2); border: 1px solid #27ae60; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                    <h4 style="color: #27ae60; margin-bottom: 10px;">✅ Efter nedladdning</h4>
+                    <ol style="color: #ecf0f1; margin-left: 20px; line-height: 1.6;">
+                        <li>Installera Tor Browser</li>
+                        <li>Starta programmet</li>
+                        <li>Konfigurera broar (se guide till vänster)</li>
+                        <li>Testa anslutningen</li>
+                        <li>Börja surfa anonymt!</li>
+                    </ol>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="window.open('https://check.torproject.org/', '_blank')" 
+                                style="background: rgba(52, 152, 219, 0.8); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px;">
+                            🔍 Testa Tor-anslutning
+                        </button>
+                        <button onclick="window.open('https://www.torproject.org/docs/', '_blank')" 
+                                style="background: rgba(155, 89, 182, 0.8); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px;">
+                            📚 Officiell dokumentation
+                        </button>
+                        <button onclick="window.open('https://support.torproject.org/', '_blank')" 
+                                style="background: rgba(52, 73, 94, 0.8); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px;">
+                            💬 Support & Hjälp
+                        </button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                    <h4 style="color: #f39c12; margin-bottom: 15px;">🎰 Redo för Crypto-casinon?</h4>
+                    <p style="color: #ecf0f1; margin-bottom: 15px;">
+                        När Tor Browser är installerat och konfigurerat kan du börja surfa anonymt till crypto-casinon. 
+                        Följ guiden till vänster för att konfigurera broar först!
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px;">
+                        <button onclick="copyToClipboard('https://stake.com')" style="background: rgba(231, 76, 60, 0.6); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px;">🚀 Stake</button>
+                        <button onclick="copyToClipboard('https://roobet.com')" style="background: rgba(231, 76, 60, 0.6); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px;">🎯 Roobet</button>
+                        <button onclick="copyToClipboard('https://bc.game')" style="background: rgba(231, 76, 60, 0.6); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px;">🎮 BC.Game</button>
+                        <button onclick="copyToClipboard('https://duelbits.com')" style="background: rgba(231, 76, 60, 0.6); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px;">⚔️ Duelbits</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
