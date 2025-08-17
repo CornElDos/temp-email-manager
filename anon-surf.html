@@ -271,31 +271,23 @@
     <div class="header">
         <div class="header-top">
             <div class="logo">
-                <span>🕶️</span>
-                <h1>Anonym Surf</h1>
-                <span style="font-size: 12px; color: #666;">by Mailboxes Live</span>
+                <span>🧅</span>
+                <h1>Tor Browser Guide</h1>
+                <span style="font-size: 12px; color: #666;">för Anonym Casino-surfning</span>
             </div>
             
             <div class="ip-info">
                 <span class="country-flag" id="countryFlag">🌍</span>
                 <span class="ip-display" id="ipDisplay">Laddar IP...</span>
-                <select class="proxy-selector" id="proxySelector">
-                    <option value="auto">🎲 Random Proxy (iframe)</option>
-                    <option value="croxyproxy">🔒 CroxyProxy (iframe)</option>
-                    <option value="filterbypass">🌐 FilterBypass (iframe)</option>
-                    <option value="anonymouse">🕶️ Anonymouse (iframe)</option>
-                    <option value="kproxy">⚡ KProxy (ny flik)</option>
-                    <option value="hideme">🛡️ Hide.me (ny flik)</option>
-                    <option value="proxysite">📄 ProxySheet (ny flik)</option>
-                </select>
+                <span style="font-size: 12px; color: #666;">→ Tor för anonymitet</span>
             </div>
         </div>
         
         <div class="controls">
             <input type="url" class="url-input" id="urlInput" 
-                   placeholder="Ange webbadress (t.ex. https://casino.com)" />
-            <button class="go-btn" id="goBtn" onclick="goAnonymous()">
-                🚀 Go Anonymous
+                   placeholder="Casino-URL att besöka med Tor Browser" />
+            <button class="go-btn" id="torGuideBtn" onclick="startTorGuide()">
+                📥 Visa Tor Guide
             </button>
             <button class="go-btn" onclick="goHome()" style="background: linear-gradient(135deg, #6c757d 0%, #545b62 100%); margin-left: 10px;">
                 🏠 Hem
@@ -303,19 +295,20 @@
         </div>
         
         <div class="quick-sites">
-            <div class="quick-site" onclick="setUrl('https://duckduckgo.com')">🔍 DuckDuckGo</div>
-            <div class="quick-site" onclick="setUrl('https://google.com')">🌐 Google</div>
+            <div class="quick-site" onclick="setUrl('https://www.torproject.org/download/')">📥 Ladda ner Tor</div>
+            <div class="quick-site" onclick="setUrl('https://check.torproject.org/')">🔍 Tor Status</div>
             <div class="quick-site" onclick="setUrl('https://whatismyipaddress.com')">📍 IP Check</div>
-            <div class="quick-site" onclick="setUrl('https://10minutemail.com')">📧 10MinMail</div>
+            <div class="quick-site" onclick="setUrl('https://www.duckduckgo.com')">🦆 DuckDuckGo</div>
         </div>
     </div>
 
     <div id="welcomeScreen" class="welcome-screen">
         <div class="welcome-content">
-            <h2>₿ Anonym Crypto Casino Surf</h2>
-            <p>Surfa anonymt till crypto-casinon med roterade IP-adresser. Perfekt för att komma runt IP-spärrar och geo-restriktioner vid Bitcoin-spel.</p>
+            <h2>🕶️ Anonym Surf med Tor Browser</h2>
+            <p>Ladda ner och konfigurera Tor Browser för maximal anonymitet vid casino-surfning. Tor ger äkta anonymitet genom att dirigera din trafik via krypterade noder.</p>
             
             <div class="casino-examples">
+                <div class="casino-btn" onclick="startTorGuide()">📥 Visa Tor Browser Guide</div>
                 <div class="casino-btn" onclick="setUrl('https://stake.com')">🚀 Stake</div>
                 <div class="casino-btn" onclick="setUrl('https://roobet.com')">🎯 Roobet</div>
                 <div class="casino-btn" onclick="setUrl('https://bc.game')">🎮 BC.Game</div>
@@ -330,57 +323,100 @@
         </div>
     </div>
 
+    <div id="welcomeScreen" class="welcome-screen">
+        <div class="welcome-content">
+            <h2>🧅 Anonym Surf med Tor Browser</h2>
+            <p>Ladda ner och konfigurera Tor Browser för maximal anonymitet vid casino-surfning. Tor ger äkta anonymitet genom att dirigera din trafik via krypterade noder.</p>
+            
+            <div class="casino-examples">
+                <div class="casino-btn" onclick="startTorGuide()">📥 Visa Tor Browser Guide</div>
+                <div class="casino-btn" onclick="setUrl('https://stake.com')">🚀 Stake</div>
+                <div class="casino-btn" onclick="setUrl('https://roobet.com')">🎯 Roobet</div>
+                <div class="casino-btn" onclick="setUrl('https://bc.game')">🎮 BC.Game</div>
+                <div class="casino-btn" onclick="setUrl('https://duelbits.com')">⚔️ Duelbits</div>
+                <div class="casino-btn" onclick="setUrl('https://bitcasino.io')">₿ Bitcasino</div>
+                <div class="casino-btn" onclick="setUrl('https://fortunejack.com')">🍀 FortuneJack</div>
+                <div class="casino-btn" onclick="setUrl('https://mbitcasino.com')">💎 mBit Casino</div>
+                <div class="casino-btn" onclick="setUrl('https://cloudbet.com')">☁️ Cloudbet</div>
+                <div class="casino-btn" onclick="setUrl('https://bitstarz.com')">⭐ BitStarz</div>
+                <div class="casino-btn" onclick="setUrl('https://crypto.games')">🎲 Crypto.Games</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="torInstructions" style="display: none; padding: 20px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); margin: 20px; border-radius: 20px; max-height: calc(100vh - 160px); overflow-y: auto;">
+        <h2 style="color: #333; margin-bottom: 20px;">🧅 Tor Browser Setup Guide för Anonym Casino-surfning</h2>
+        
+        <div style="background: #e8f4f8; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #17a2b8;">
+            <h3 style="color: #0c5460; margin-bottom: 10px;">📝 Vad du behöver göra:</h3>
+            <ol style="color: #0c5460; margin-left: 20px;">
+                <li>Ladda ner Tor Browser från officiella sajten</li>
+                <li>Konfigurera broar för extra säkerhet</li>
+                <li>Ställ in automatisk anslutning</li>
+                <li>Surfa anonymt till crypto-casinon</li>
+            </ol>
+        </div>
+
+        <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+            <h3 style="color: #856404; margin-bottom: 10px;">⚠️ Viktiga säkerhetstips:</h3>
+            <ul style="color: #856404; margin-left: 20px;">
+                <li>Använd alltid broar (bridges) för extra anonymitet</li>
+                <li>Välj "meek-azure" för bästa kompatibilitet</li>
+                <li>Stäng aldrig Tor Browser mellan casino-sessioner</li>
+                <li>Använd endast HTTPS-sajter för casino-spel</li>
+            </ul>
+        </div>
+
+        <div style="background: #d1ecf1; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #17a2b8;">
+            <h3 style="color: #0c5460; margin-bottom: 15px;">🔧 Steg 1: Konfigurera Broar</h3>
+            <p style="color: #0c5460; margin-bottom: 10px;">I Tor Browser-inställningar, aktivera "Använd broar" och välj "meek-azure":</p>
+            <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #dee2e6;">
+                <p style="font-family: monospace; font-size: 12px; color: #495057;">
+                    ✅ Använd broar: <strong>Aktiverad</strong><br>
+                    🔧 Bro-typ: <strong>meek-azure</strong><br>
+                    🔄 Byt ut broar: <strong>Tillgänglig vid behov</strong>
+                </p>
+            </div>
+        </div>
+
+        <div style="background: #d4edda; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #28a745;">
+            <h3 style="color: #155724; margin-bottom: 15px;">⚙️ Steg 2: Anslutningsinställningar</h3>
+            <p style="color: #155724; margin-bottom: 10px;">Kontrollera att anslutningen fungerar korrekt:</p>
+            <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #dee2e6;">
+                <p style="font-family: monospace; font-size: 12px; color: #495057;">
+                    🌐 Internet: <strong style="color: #28a745;">Uppkopplad</strong><br>
+                    🧅 Tor-nätverk: <strong style="color: #28a745;">Ansluten</strong><br>
+                    🔄 Anslut automatiskt: <strong style="color: #17a2b8;">Aktiverad</strong>
+                </p>
+            </div>
+        </div>
+
+        <div style="background: #f8d7da; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+            <h3 style="color: #721c24; margin-bottom: 15px;">🎰 Steg 3: Casino-surfning</h3>
+            <p style="color: #721c24; margin-bottom: 10px;">När Tor Browser är konfigurerat:</p>
+            <ul style="color: #721c24; margin-left: 20px;">
+                <li>Kopiera casino-URL från listan ovan</li>
+                <li>Klistra in i Tor Browser</li>
+                <li>Din IP-adress är nu anonymiserad</li>
+                <li>Kom ihåg att alltid använda broar</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="goHome()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 16px; cursor: pointer; margin-right: 10px;">
+                🏠 Tillbaka till start
+            </button>
+            <button onclick="copyToClipboard(document.getElementById('urlInput').value || 'https://stake.com')" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 16px; cursor: pointer;">
+                📋 Kopiera Casino-URL
+            </button>
+        </div>
+    </div>
+
     <iframe id="contentFrame" class="content-frame" style="display: none;"></iframe>
 
     <div id="statusBar" class="status-bar" style="display: none;"></div>
 
     <script>
-        // Casino-optimized proxy services
-        const proxyServices = {
-            croxyproxy: {
-                name: 'CroxyProxy',
-                url: 'https://www.croxyproxy.com/go#url=',
-                type: 'hash',
-                iframe: true,
-                description: 'Stöder JavaScript & cookies - bäst för casinon'
-            },
-            kproxy: {
-                name: 'KProxy',
-                url: 'https://kproxy.com/servlet/redirect.srv/s/',
-                type: 'direct',
-                iframe: false, // Ofta blockerar iframe
-                description: 'Stabil för gaming-sidor'
-            },
-            filterbypass: {
-                name: 'FilterBypass',
-                url: 'https://www.filterbypass.me/index.php?q=',
-                type: 'query',
-                iframe: true,
-                description: 'Backup proxy'
-            },
-            anonymouse: {
-                name: 'Anonymouse',
-                url: 'https://anonymouse.org/cgi-bin/anon-www.cgi/',
-                type: 'direct',
-                iframe: true,
-                description: 'Klassisk proxy-tjänst'
-            },
-            hideme: {
-                name: 'Hide.me',
-                url: 'https://hide.me/en/proxy',
-                type: 'newtab',
-                iframe: false,
-                description: 'EU-servrar - öppnas i ny flik'
-            },
-            proxysite: {
-                name: 'ProxySheet',
-                url: 'https://www.proxysite.com',
-                type: 'newtab',
-                iframe: false,
-                description: 'Olika länders IP - öppnas i ny flik'
-            }
-        };
-
         // Global variables
         let currentIP = null;
         let currentCountry = null;
@@ -430,10 +466,10 @@
         function setupEventListeners() {
             const urlInput = document.getElementById('urlInput');
             
-            // Enter key to go
+            // Enter key to start Tor guide
             urlInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    goAnonymous();
+                    startTorGuide();
                 }
             });
 
@@ -450,118 +486,48 @@
         function setUrl(url) {
             document.getElementById('urlInput').value = url;
             document.getElementById('urlInput').focus();
+            showStatus(`Casino-URL inställd: ${url}`, 'success');
         }
 
-        // Get random proxy service (only iframe-compatible ones)
-        function getRandomProxy() {
-            const iframeServices = Object.keys(proxyServices).filter(key => 
-                proxyServices[key].iframe === true
-            );
-            const randomKey = iframeServices[Math.floor(Math.random() * iframeServices.length)];
-            return proxyServices[randomKey];
-        }
-
-        // Get selected proxy service
-        function getSelectedProxy() {
-            const selector = document.getElementById('proxySelector');
-            const selected = selector.value;
-            
-            if (selected === 'auto') {
-                return getRandomProxy();
-            }
-            
-            return proxyServices[selected];
-        }
-
-        // Build proxy URL
-        function buildProxyUrl(targetUrl, proxyService) {
-            switch (proxyService.type) {
-                case 'hash':
-                    // CroxyProxy style: url#target
-                    return `${proxyService.url}${encodeURIComponent(targetUrl)}`;
-                    
-                case 'query':
-                    // FilterBypass style: ?q=target
-                    return `${proxyService.url}${encodeURIComponent(targetUrl)}`;
-                    
-                case 'direct':
-                    // KProxy/Anonymouse style: direct append
-                    return `${proxyService.url}${encodeURIComponent(targetUrl)}`;
-                    
-                case 'newtab':
-                    // For new tab services, open their main page
-                    // User will manually enter URL there
-                    return proxyService.url;
-                    
-                default:
-                    // Fallback
-                    return `${proxyService.url}${encodeURIComponent(targetUrl)}`;
-            }
-        }
-
-        // Go anonymous
-        function goAnonymous() {
+        // Start Tor Browser guide
+        function startTorGuide() {
             const urlInput = document.getElementById('urlInput');
-            const goBtn = document.getElementById('goBtn');
-            const url = urlInput.value.trim();
+            const torGuideBtn = document.getElementById('torGuideBtn');
             
-            if (!url) {
-                showStatus('Ange en webbadress först!', 'error');
-                urlInput.focus();
-                return;
-            }
+            // Update button state
+            torGuideBtn.disabled = true;
+            torGuideBtn.textContent = '📥 Laddar guide...';
+            
+            // Hide welcome screen and show instructions
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('torInstructions').style.display = 'block';
+            
+            // Also load Tor download page in iframe
+            const iframe = document.getElementById('contentFrame');
+            iframe.style.display = 'block';
+            iframe.src = 'https://www.torproject.org/download/';
+            
+            showStatus('Tor Browser guide visas - ladda ner från torproject.org', 'success');
+            
+            // Reset button
+            setTimeout(() => {
+                torGuideBtn.disabled = false;
+                torGuideBtn.textContent = '📥 Visa Tor Guide';
+            }, 2000);
+            
+            const targetUrl = urlInput.value.trim() || 'crypto-casino';
+            console.log(`Tor Browser guide startad för: ${targetUrl}`);
+        }
 
-            // Validate URL
+        // Copy text to clipboard
+        async function copyToClipboard(text) {
             try {
-                new URL(url);
-            } catch (e) {
-                showStatus('Ogiltig webbadress! Kontrollera formatet.', 'error');
-                urlInput.focus();
-                return;
+                await navigator.clipboard.writeText(text);
+                showStatus(`Kopierat till urklipp: ${text}`, 'success');
+            } catch (error) {
+                console.error('Error copying to clipboard:', error);
+                showStatus('Kunde inte kopiera till urklipp', 'error');
             }
-
-            // Get proxy service
-            const proxyService = getSelectedProxy();
-            
-            // Update UI
-            goBtn.disabled = true;
-            goBtn.textContent = '🔄 Laddar...';
-            
-            // Handle different proxy types
-            if (proxyService.type === 'newtab' || !proxyService.iframe) {
-                // Open in new tab for services that block iframe
-                const proxyUrl = buildProxyUrl(url, proxyService);
-                window.open(proxyUrl, '_blank');
-                
-                showStatus(`${proxyService.name} öppnad i ny flik`, 'success');
-                
-                // Reset button immediately
-                setTimeout(() => {
-                    goBtn.disabled = false;
-                    goBtn.textContent = '🚀 Go Anonymous';
-                }, 1000);
-                
-            } else {
-                // Load in iframe for compatible services
-                const proxyUrl = buildProxyUrl(url, proxyService);
-                
-                // Hide welcome screen
-                document.getElementById('welcomeScreen').style.display = 'none';
-                const iframe = document.getElementById('contentFrame');
-                iframe.style.display = 'block';
-                
-                showStatus(`Ansluter via ${proxyService.name}...`, 'loading');
-                iframe.src = proxyUrl;
-                
-                // Reset button after delay
-                setTimeout(() => {
-                    goBtn.disabled = false;
-                    goBtn.textContent = '🚀 Go Anonymous';
-                    showStatus(`Surfar anonymt via ${proxyService.name}`, 'success');
-                }, 3000);
-            }
-            
-            console.log(`Loading: ${url} via ${proxyService.name} (${proxyService.type}, iframe: ${proxyService.iframe})`);
         }
 
         // Show status message
@@ -577,21 +543,22 @@
             }, 3000);
         }
 
-        // Refresh IP (reload current IP info)
-        async function refreshIP() {
-            await loadIPInfo();
-        }
-
         // Go back to welcome screen
         function goHome() {
             document.getElementById('welcomeScreen').style.display = 'flex';
+            document.getElementById('torInstructions').style.display = 'none';
             document.getElementById('contentFrame').style.display = 'none';
             document.getElementById('urlInput').value = '';
             showStatus('Tillbaka till startsidan', 'success');
         }
 
-        console.log('🕶️ Anonym Surf - Mailboxes Live laddad!');
-        console.log('Casino-optimerade proxy-tjänster:', Object.keys(proxyServices));
+        // Refresh IP (reload current IP info)
+        async function refreshIP() {
+            await loadIPInfo();
+        }
+
+        console.log('🧅 Tor Browser Guide - Mailboxes Live laddad!');
+        console.log('Guide för anonym casino-surfning via Tor Browser');
     </script>
 </body>
 </html>
