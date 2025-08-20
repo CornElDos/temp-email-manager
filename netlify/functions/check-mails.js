@@ -36,12 +36,14 @@ exports.handler = async (event, context) => {
     // Get fresh access token
     const accessToken = await getGmailAccessToken();
 
-    // Search for emails sent to this specific address
-    const searchQuery = `to:${email}`;
+    // 🔥 UPPDATERING: Sök i ALLA mappar inkl. Spam med tidsfilter
+    const searchQuery = `to:${email} newer_than:48h`;
     
-    // Get message IDs from Gmail search
+    console.log(`🔍 Gmail search query: ${searchQuery}`);
+    
+    // 🔥 UPPDATERING: Inkludera includeSpamTrash för att få spam-mails
     const searchResponse = await fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(searchQuery)}&maxResults=50`,
+      `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(searchQuery)}&maxResults=50&includeSpamTrash=true`,
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -57,7 +59,7 @@ exports.handler = async (event, context) => {
     const searchResult = await searchResponse.json();
     const messages = searchResult.messages || [];
 
-    console.log(`Found ${messages.length} messages for ${email}`);
+    console.log(`📧 Found ${messages.length} messages for ${email} (inkl. alla mappar)`);
 
     if (messages.length === 0) {
       return {
@@ -68,16 +70,18 @@ exports.handler = async (event, context) => {
           email: email,
           mails: [],
           count: 0,
-          checked_at: new Date().toISOString()
+          checked_at: new Date().toISOString(),
+          debug: 'No messages found in any folder (inbox, spam, promotions, etc.)'
         })
       };
     }
 
-    // Fetch detailed information for each message
+    // 🔥 UPPDATERING: Öka från 3 till 10 meddelanden för bättre täckning
     const mails = [];
-    const batchSize = 3; // Process in batches to avoid rate limits
+    const batchSize = 3;
+    const maxMessages = Math.min(messages.length, 10); // Ökat från 3 till 10
 
-    for (let i = 0; i < Math.min(messages.length, 3); i += batchSize) {
+    for (let i = 0; i < maxMessages; i += batchSize) {
       const batch = messages.slice(i, i + batchSize);
       
       const batchPromises = batch.map(async (message) => {
@@ -109,7 +113,7 @@ exports.handler = async (event, context) => {
       mails.push(...batchResults.filter(mail => mail !== null));
 
       // Rate limiting - wait between batches
-      if (i + batchSize < messages.length) {
+      if (i + batchSize < maxMessages) {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
     }
@@ -117,7 +121,15 @@ exports.handler = async (event, context) => {
     // Sort by date (newest first)
     mails.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    console.log(`Successfully processed ${mails.length} mails for ${email}`);
+    console.log(`✅ Successfully processed ${mails.length} mails for ${email}`);
+
+    // 🔥 UPPDATERING: Debug-info om vilka mappar som hittades
+    if (mails.length > 0) {
+      console.log('📂 Mail folder distribution:');
+      mails.forEach(mail => {
+        console.log(`  - ${mail.subject} (${mail.folder || 'unknown folder'})`);
+      });
+    }
 
     return {
       statusCode: 200,
@@ -127,7 +139,13 @@ exports.handler = async (event, context) => {
         email: email,
         mails: mails,
         count: mails.length,
-        checked_at: new Date().toISOString()
+        checked_at: new Date().toISOString(),
+        debug: {
+          total_found: messages.length,
+          processed: mails.length,
+          search_query: searchQuery,
+          includes_spam: true
+        }
       })
     };
 
@@ -182,7 +200,7 @@ async function getGmailAccessToken() {
   return tokenData.access_token;
 }
 
-// Parse Gmail message into our format
+// 🔥 UPPDATERING: Parse Gmail message med folder-info
 function parseGmailMessage(messageData, targetEmail) {
   try {
     const headers = messageData.payload.headers || [];
@@ -202,6 +220,25 @@ function parseGmailMessage(messageData, targetEmail) {
     if (!to.includes(targetEmail)) {
       return null;
     }
+
+    // 🔥 UPPDATERING: Identifiera vilken mapp mailet ligger i
+    const labels = messageData.labelIds || [];
+    let folder = 'inbox'; // default
+    
+    if (labels.includes('SPAM')) {
+      folder = 'spam';
+    } else if (labels.includes('CATEGORY_PROMOTIONS')) {
+      folder = 'promotions';
+    } else if (labels.includes('CATEGORY_UPDATES')) {
+      folder = 'updates';
+    } else if (labels.includes('CATEGORY_SOCIAL')) {
+      folder = 'social';
+    } else if (labels.includes('TRASH')) {
+      folder = 'trash';
+    }
+
+    // 🔥 UPPDATERING: Logga folder-info för debug
+    console.log(`📧 ${subject} från ${from} → FOLDER: ${folder} (labels: ${labels.join(', ')})`);
 
     // Extract message body
     const { textContent, htmlContent } = extractMessageContent(messageData.payload);
@@ -227,7 +264,9 @@ function parseGmailMessage(messageData, targetEmail) {
       to: to,
       messageId: messageData.id,
       threadId: messageData.threadId,
-      source: 'gmail'
+      source: 'gmail',
+      folder: folder,           // 🔥 NYTT: Folder-info
+      labels: labels            // 🔥 NYTT: Alla Gmail labels
     };
 
   } catch (error) {
