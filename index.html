@@ -1462,6 +1462,43 @@
             }
         });
 
+        // Auto-check för nya emails var 30:e sekund
+        let emailCheckInterval;
+        
+        function startEmailPolling(emailAddress) {
+            // Rensa befintlig timer
+            if (emailCheckInterval) {
+                clearInterval(emailCheckInterval);
+            }
+            
+            // Starta ny polling
+            emailCheckInterval = setInterval(() => {
+                checkMails(emailAddress); // Din befintliga funktion
+            }, 30000); // 30 sekunder
+            
+            console.log('🔄 Auto-polling started för', emailAddress);
+        }
+        
+        function stopEmailPolling() {
+            if (emailCheckInterval) {
+                clearInterval(emailCheckInterval);
+                emailCheckInterval = null;
+                console.log('⏹️ Auto-polling stopped');
+            }
+        }
+        
+        // Starta polling när email genereras
+        function generateEmail() {
+            // Din befintliga email-generering...
+            const emailAddress = `${namn}@mailboxes.live`;
+            
+            // Första kontrollen omedelbart
+            checkMails(emailAddress);
+            
+            // Starta auto-polling
+            startEmailPolling(emailAddress);
+        }
+
         // Initialize on page load
         updateStats();
         console.log('Temp Email Manager v3 - Svenska emails & Anonym surf laddad!');
